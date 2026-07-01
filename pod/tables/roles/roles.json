@@ -1,0 +1,22 @@
+{
+  "name": "roles",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "title",           "type": "TEXT", "required": true, "max_length": 200 },
+    { "name": "slug",            "type": "TEXT", "required": true, "unique": true, "max_length": 80,
+      "description": "Short id used in dossier paths and URLs (e.g. ai-pm)." },
+    { "name": "hiring_lead_user_id", "type": "USER" },
+    { "name": "must_haves",      "type": "JSON",
+      "description": "Array of strings — non-negotiables for this role." },
+    { "name": "nice_haves",      "type": "JSON",
+      "description": "Array of strings — bonus qualities." },
+    { "name": "rubric_file",     "type": "FILE_PATH", "max_length": 500,
+      "description": "Markdown file under /knowledge/roles/<slug>/rubric.md." },
+    { "name": "pitch_file",      "type": "FILE_PATH", "max_length": 500,
+      "description": "Markdown file under /knowledge/roles/<slug>/pitch.md." },
+    { "name": "status",          "type": "ENUM", "required": true, "default": "open",
+      "options": ["open", "paused", "filled", "closed"] }
+  ],
+  "config": {}
+}

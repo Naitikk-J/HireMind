@@ -1,0 +1,5 @@
+{
+  "name": "landing",
+  "description": "Public landing page for Hiremind. Sells the product, then gates entry to the operator panel behind a username/password login. Successful login redirects to the operator app on the same host. Demo credentials are stored client-side — this is a hackathon-grade frontend gate, not production auth.",
+  "public_slug": "landing"
+}

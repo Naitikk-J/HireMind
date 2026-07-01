@@ -1,0 +1,11 @@
+{
+  "name": "poll_replies",
+  "schedule_type": "TIME",
+  "config": {
+    "cron": "*/2 * * * *",
+    "timezone": "Asia/Kolkata",
+    "payload": {}
+  },
+  "workflow_name": "check_replies",
+  "is_active": true
+}

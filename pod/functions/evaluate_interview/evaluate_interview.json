@@ -1,0 +1,22 @@
+{
+  "name": "evaluate_interview",
+  "description": "Score an AI video interview on a 0–100 scale. Reads the candidate's transcript markdown (written when the operator pastes the transcript code), pulls the role's rubric, and computes per-question + overall scores deterministically (no LLM dependency). Persists the evaluation JSON to /candidates/<id>/interview-<interview_id>-eval.json, writes score + eval_path onto the interviews row, and inserts a scorecards row with a strengths/concerns/recommendation summary so the founder's existing scorecard panel shows the result without a separate UI.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "interviews",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "scorecards",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

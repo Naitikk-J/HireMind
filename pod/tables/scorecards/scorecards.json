@@ -1,0 +1,18 @@
+{
+  "name": "scorecards",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "interview_id",  "type": "UUID", "required": true,
+      "foreign_key": { "references": "interviews.id" } },
+    { "name": "candidate_id",  "type": "UUID", "required": true,
+      "foreign_key": { "references": "candidates.id" } },
+    { "name": "strengths",     "type": "TEXT", "max_length": 2000 },
+    { "name": "concerns",      "type": "TEXT", "max_length": 2000 },
+    { "name": "recommendation","type": "ENUM", "required": true,
+      "options": ["strong_hire", "hire", "no_hire", "strong_no_hire"] },
+    { "name": "notes",         "type": "TEXT", "max_length": 4000 },
+    { "name": "submitted_by_user_id", "type": "USER" }
+  ],
+  "config": {}
+}

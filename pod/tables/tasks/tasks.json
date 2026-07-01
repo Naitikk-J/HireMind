@@ -1,0 +1,21 @@
+{
+  "name": "tasks",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "type",            "type": "ENUM", "required": true,
+      "options": ["needs_followup", "approve_message", "submit_feedback", "decide_offer", "manual_review"] },
+    { "name": "owner_user_id",   "type": "USER" },
+    { "name": "candidate_id",    "type": "UUID",
+      "foreign_key": { "references": "candidates.id" } },
+    { "name": "title",           "type": "TEXT", "required": true, "max_length": 240 },
+    { "name": "due",             "type": "DATETIME" },
+    { "name": "status",          "type": "ENUM", "required": true, "default": "pending",
+      "options": ["pending", "done", "snoozed", "cancelled"] },
+    { "name": "created_by",      "type": "TEXT", "max_length": 80,
+      "description": "Agent or workflow id that created the task." },
+    { "name": "context_ref",     "type": "JSON",
+      "description": "Free-form pointer back to the triggering row/run." }
+  ],
+  "config": {}
+}

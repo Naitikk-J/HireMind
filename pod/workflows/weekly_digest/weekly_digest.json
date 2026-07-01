@@ -1,0 +1,47 @@
+{
+  "name": "weekly_digest",
+  "description": "Compute pipeline state, compose the WhatsApp digest, send it. Triggered by `mon_digest` and `fri_digest` schedules.",
+  "start": { "type": "SCHEDULED", "config": { "schedule_type": "CRON" } },
+  "nodes": [
+    {
+      "id": "compute",
+      "type": "FUNCTION",
+      "label": "Compute pipeline state",
+      "config": {
+        "function_name": "compute_pipeline_state",
+        "input_mapping": {}
+      }
+    },
+    {
+      "id": "compose",
+      "type": "AGENT",
+      "label": "Compose digest text",
+      "config": {
+        "agent_name": "digest_composer",
+        "input_mapping": {
+          "pipeline_state": { "type": "expression", "value": "compute" },
+          "tone":           { "type": "expression", "value": "start.payload.tone", "optional": true }
+        }
+      }
+    },
+    {
+      "id": "send",
+      "type": "FUNCTION",
+      "label": "Send via WhatsApp (or email fallback)",
+      "config": {
+        "function_name": "send_digest",
+        "input_mapping": {
+          "message_text":  { "type": "expression", "value": "compose.message_text" },
+          "founder_phone": { "type": "expression", "value": "start.payload.founder_phone", "optional": true },
+          "founder_email": { "type": "expression", "value": "start.payload.founder_email", "optional": true }
+        }
+      }
+    },
+    { "id": "done", "type": "END", "label": "Digest sent" }
+  ],
+  "edges": [
+    { "id": "e1", "source": "compute", "target": "compose" },
+    { "id": "e2", "source": "compose", "target": "send" },
+    { "id": "e3", "source": "send",    "target": "done" }
+  ]
+}

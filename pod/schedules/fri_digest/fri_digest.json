@@ -1,0 +1,11 @@
+{
+  "name": "fri_digest",
+  "schedule_type": "TIME",
+  "config": {
+    "cron": "0 9 * * 1,5",
+    "timezone": "Asia/Kolkata",
+    "payload": { "tone": "weekly_recap" }
+  },
+  "workflow_name": "weekly_digest",
+  "is_active": true
+}

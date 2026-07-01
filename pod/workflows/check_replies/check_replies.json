@@ -1,0 +1,20 @@
+{
+  "name": "check_replies",
+  "description": "Cron-triggered wrapper around poll_replies. Lemma schedules dispatch workflows, not raw functions, so this is a one-node workflow that simply invokes the polling function. Keep it dumb on purpose — all logic lives in poll_replies so it's also callable from the operator UI's 'Refresh now' button.",
+  "start": { "type": "MANUAL" },
+  "nodes": [
+    {
+      "id": "poll",
+      "type": "FUNCTION",
+      "label": "Poll Gmail threads for new replies",
+      "config": {
+        "function_name": "poll_replies",
+        "input_mapping": {}
+      }
+    },
+    { "id": "done", "type": "END", "label": "Poll complete" }
+  ],
+  "edges": [
+    { "id": "e1", "source": "poll", "target": "done" }
+  ]
+}

@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Apply · Hiremind</title>
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FAFAFB;
+    --surface: #FFFFFF;
+    --fg: #0F1014;
+    --muted: #5C5E69;
+    --subtle: #ECEDF0;
+    --subtle-2: #F4F5F7;
+    --accent: #5E55D4;
+    --accent-soft: #ECEAFE;
+    --danger: #B83A4A;
+    --danger-soft: #FDECEF;
+    --success: #2F8F65;
+    --max: 580px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.55;
+    background-image:
+      radial-gradient(900px 520px at -10% -20%, rgba(94, 85, 212, 0.07), transparent 60%),
+      radial-gradient(700px 480px at 110% 120%, rgba(96, 165, 250, 0.04), transparent 60%);
+  }
+  .wrap { min-height: 100dvh; display: grid; place-items: start center; padding: 24px 24px 64px; }
+  .card {
+    width: 100%;
+    max-width: var(--max);
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 14px;
+    padding: 36px 32px 28px;
+    box-shadow: 0 1px 2px rgba(15, 16, 20, 0.03), 0 16px 36px -16px rgba(15, 16, 20, 0.08);
+    margin-top: 64px;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; }
+  .brand-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    line-height: 1.15;
+    margin: 18px 0 6px;
+  }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+  .role-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 5px 12px;
+    font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    margin-bottom: 12px;
+  }
+  label {
+    display: block;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  input[type="text"], input[type="email"], input[type="url"], textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--fg);
+    margin-top: 6px;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    -webkit-appearance: none;
+  }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(94, 85, 212, 0.12);
+  }
+  textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 5px; }
+  .err { color: var(--danger); font-size: 12px; margin-top: 5px; display: none; }
+  .err.shown { display: block; }
+  button[type="submit"] {
+    margin-top: 24px;
+    width: 100%;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 13px 18px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.12s ease;
+  }
+  button[type="submit"]:hover { opacity: 0.92; }
+  button[type="submit"]:active { transform: translateY(1px); }
+  button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+  .privacy {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.45;
+    text-align: center;
+  }
+  .privacy a { color: var(--muted); }
+  .success {
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .success .check {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: grid; place-items: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+  }
+  .success h2 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+  }
+  .success p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0;
+  }
+  .status-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 18px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .fallback {
+    margin-top: 20px;
+    background: var(--danger-soft);
+    border: 1px solid rgba(184, 58, 74, 0.18);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--fg);
+    font-size: 13px;
+    line-height: 1.5;
+    display: none;
+  }
+  .fallback.shown { display: block; }
+  .fallback strong { color: var(--danger); }
+  .fallback a.mailto {
+    display: inline-block;
+    margin-top: 8px;
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 8px;
+    padding: 8px 14px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .skel-foot {
+    margin-top: 32px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .skel-foot .accent { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="card" id="card">
+    <div class="brand"><span class="brand-dot"></span> Hiremind · careers</div>
+
+    <!-- FORM VIEW (default) -->
+    <section id="form-view">
+      <div id="role-chip-slot"></div>
+      <h1>Apply</h1>
+      <p class="sub">No cover letter, no calibrated bullshit. Tell us who you are and why this one — we read every submission within 48 hours.</p>
+
+      <form id="apply-form" novalidate>
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" required maxlength="120" autocomplete="name" />
+        <div class="err" id="err-name">Please share your full name.</div>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required maxlength="180" autocomplete="email" inputmode="email" />
+        <div class="err" id="err-email">That email doesn't look quite right.</div>
+
+        <label for="linkedin">LinkedIn <span style="text-transform:none;letter-spacing:0;font-weight:400;opacity:0.8">(optional but encouraged)</span></label>
+        <input type="url" id="linkedin" name="linkedin_url" maxlength="300" placeholder="https://linkedin.com/in/…" />
+
+        <label for="portfolio">Portfolio, GitHub, or recent work <span style="text-transform:none;letter-spacing:0;font-weight:400;opacity:0.8">(optional)</span></label>
+        <input type="url" id="portfolio" name="portfolio_url" maxlength="300" placeholder="https://github.com/you or a deep-dive write-up" />
+
+        <label for="why">Why this role specifically?</label>
+        <textarea id="why" name="why" maxlength="2000" placeholder="One paragraph is enough. Pick a thing you've actually shipped or thought hard about and tell us why this one is the one you want next."></textarea>
+        <div class="hint" id="why-counter">0 / 2000</div>
+
+        <button type="submit" id="submit-btn">Submit application</button>
+        <div class="err" id="err-submit"></div>
+
+        <div class="fallback" id="fallback">
+          <strong>Couldn't reach the inbox.</strong>
+          You can still get this in front of the founder — we built a one-click email fallback below. Your form data is ready to send.
+          <br />
+          <a href="#" class="mailto" id="mailto-link">Open in your email app</a>
+        </div>
+
+        <p class="privacy">
+          We use this to evaluate fit. We won't share your details with anyone outside the hiring loop. You can ask us to delete everything at any time.
+        </p>
+      </form>
+    </section>
+
+    <!-- SUCCESS VIEW (after submit) -->
+    <section id="success-view" style="display:none">
+      <div class="success">
+        <div class="check">✓</div>
+        <h2 id="success-headline">Application received</h2>
+        <p id="success-sub">We'll read it within 48 hours. If we want to talk, you'll hear from the founder — directly, not from a recruiter.</p>
+        <a id="status-link" class="status-link" style="display:none" target="_blank" rel="noopener">
+          Track your application status
+          <span aria-hidden>→</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="skel-foot">Built on <span class="accent">Lemma</span></div>
+  </main>
+</div>
+
+<script>
+/**
+ * Public apply form for Hiremind.
+ *
+ * Tries to call the `submit_application` function on the pod via the
+ * Lemma platform's auto-injected `window.LemmaClient`. If that path
+ * isn't available (function not exposed publicly, host hasn't injected
+ * the client, network failure), we fall back to a `mailto:` draft so
+ * the candidate's effort is never wasted.
+ *
+ * URL params we honour:
+ *   - ?role=<slug>     pre-fills the role and surfaces a chip in the UI
+ *   - ?to=<email>      override the mailto fallback recipient (rarely used)
+ */
+(function () {
+  const params = new URLSearchParams(location.search);
+  const roleSlug = (params.get("role") || "").trim();
+  const mailtoOverride = (params.get("to") || "").trim();
+
+  /**
+   * Role chip — purely visual. The actual role association is server-side,
+   * resolved from `roleSlug` inside submit_application.
+   */
+  if (roleSlug) {
+    const chip = document.getElementById("role-chip-slot");
+    chip.innerHTML = `<span class="role-chip">applying for · <strong style="font-weight:600">${escapeHtml(roleSlug.replace(/-/g, " "))}</strong></span>`;
+  }
+
+  const form = document.getElementById("apply-form");
+  const btn = document.getElementById("submit-btn");
+  const why = document.getElementById("why");
+  const counter = document.getElementById("why-counter");
+  const errSubmit = document.getElementById("err-submit");
+  const fallback = document.getElementById("fallback");
+  const mailtoLink = document.getElementById("mailto-link");
+
+  why.addEventListener("input", () => {
+    counter.textContent = `${why.value.length} / 2000`;
+  });
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    errSubmit.classList.remove("shown");
+    fallback.classList.remove("shown");
+    document.getElementById("err-name").classList.remove("shown");
+    document.getElementById("err-email").classList.remove("shown");
+
+    const payload = {
+      name: form.name.value.trim(),
+      email: form.email.value.trim(),
+      linkedin_url: form.linkedin_url.value.trim() || null,
+      portfolio_url: form.portfolio_url.value.trim() || null,
+      why: why.value.trim(),
+      role_slug: roleSlug || null,
+    };
+
+    // Client-side guards — mirrors what submit_application enforces but
+    // gives the candidate inline feedback instead of a server round-trip.
+    if (!payload.name || payload.name.split(" ").length < 1) {
+      document.getElementById("err-name").classList.add("shown");
+      return;
+    }
+    if (!isValidEmail(payload.email)) {
+      document.getElementById("err-email").classList.add("shown");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Submitting…";
+
+    const result = await trySubmitViaLemma(payload);
+    if (result.ok) {
+      showSuccess(result.data);
+    } else {
+      // Network failure or function unavailable — degrade to mailto. Never
+      // tell the candidate "your application was lost"; their effort is too
+      // valuable to throw away over an infra hiccup.
+      console.warn("submit_application failed, falling back to mailto:", result.error);
+      mailtoLink.href = buildMailto(payload, mailtoOverride);
+      fallback.classList.add("shown");
+      errSubmit.textContent = "We couldn't reach the application inbox — use the button below to send it directly.";
+      errSubmit.classList.add("shown");
+      btn.disabled = false;
+      btn.textContent = "Submit application";
+    }
+  });
+
+  /**
+   * Try POSTing through the platform-injected LemmaClient. Returns:
+   *   { ok: true,  data: { candidate_id, public_token, candidate_status_path, role_title, deduped } }
+   *   { ok: false, error: <Error|string> }
+   *
+   * The platform may or may not inject `LemmaClient` for public apps —
+   * we treat its absence the same as a function-call failure.
+   */
+  async function trySubmitViaLemma(payload) {
+    try {
+      if (!(window.LemmaClient && window.LemmaClient.LemmaClient)) {
+        return { ok: false, error: new Error("LemmaClient not injected") };
+      }
+      const client = new window.LemmaClient.LemmaClient();
+      // Both paths the SDK exposes:
+      //   client.functions.run(name, { input })
+      //   client.functions.runs.create(name, { input })
+      let response;
+      if (client.functions && typeof client.functions.run === "function") {
+        response = await client.functions.run("submit_application", { input: payload });
+      } else if (client.functions && client.functions.runs && typeof client.functions.runs.create === "function") {
+        response = await client.functions.runs.create("submit_application", { input: payload });
+      } else {
+        return { ok: false, error: new Error("functions API not available on client") };
+      }
+      // The function-run response shape: { output: { candidate_id, public_token, ... } }
+      // SDKs sometimes wrap in `result` or `data` — accept all variants.
+      const output =
+        (response && response.output) ||
+        (response && response.result && response.result.output) ||
+        (response && response.data) ||
+        response;
+      if (!output || !output.candidate_id) {
+        return { ok: false, error: new Error("no candidate_id in response") };
+      }
+      return { ok: true, data: output };
+    } catch (e) {
+      return { ok: false, error: e };
+    }
+  }
+
+  /**
+   * Build a graceful mailto: fallback. Recipient prefers a `?to=` URL
+   * param (so the founder can rebrand per-role), then defaults to a
+   * canonical hiring address. Body is plain text with the form data,
+   * formatted to look exactly like a real cold-application email.
+   */
+  function buildMailto(payload, override) {
+    const to = override || "hiring@hiremind.app";
+    const subject = `[apply] ${payload.name}` + (roleSlug ? ` — ${roleSlug.replace(/-/g, " ")}` : "");
+    const lines = [];
+    lines.push(`Hi —`);
+    lines.push(``);
+    lines.push(`Submitting an application via the public form:`);
+    lines.push(``);
+    lines.push(`Name: ${payload.name}`);
+    lines.push(`Email: ${payload.email}`);
+    if (payload.linkedin_url) lines.push(`LinkedIn: ${payload.linkedin_url}`);
+    if (payload.portfolio_url) lines.push(`Portfolio: ${payload.portfolio_url}`);
+    if (roleSlug) lines.push(`Role: ${roleSlug}`);
+    lines.push(``);
+    if (payload.why) {
+      lines.push(`Why this role:`);
+      lines.push(payload.why);
+    }
+    lines.push(``);
+    lines.push(`Thanks,`);
+    lines.push(payload.name);
+    const body = lines.join("\n");
+    return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  function showSuccess(data) {
+    document.getElementById("form-view").style.display = "none";
+    const view = document.getElementById("success-view");
+    view.style.display = "block";
+    const headline = document.getElementById("success-headline");
+    const sub = document.getElementById("success-sub");
+    if (data.deduped) {
+      headline.textContent = "We already have this one";
+      sub.textContent = "Looks like you applied within the last few minutes — we won't double-log it. We'll be in touch.";
+    } else if (data.role_title) {
+      headline.textContent = `Got it — applied for ${data.role_title}`;
+    }
+    if (data.candidate_status_path || data.public_token) {
+      const link = document.getElementById("status-link");
+      // The candidate-view app is mounted at /c/<token>. We assume same host.
+      const path = data.candidate_status_path || `/c/${data.public_token}`;
+      // The apply page is at /apply on the apps subdomain; the status page
+      // is at /c on the same subdomain. We just swap the prefix.
+      const url = location.origin.replace(/\/apply.*/, "") + path;
+      link.href = url;
+      link.style.display = "inline-flex";
+    }
+  }
+
+  function isValidEmail(s) {
+    return /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/.test(s);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+})();
+</script>
+</body>
+</html>

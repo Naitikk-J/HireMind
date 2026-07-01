@@ -1,0 +1,83 @@
+{
+  "name": "intake",
+  "description": "Turn a raw intake (LinkedIn URL, voice transcript, paste) into a structured candidate + dossier in one shot. Entry: a single 'raw' string + optional channel hint.",
+  "start": { "type": "MANUAL" },
+  "nodes": [
+    {
+      "id": "intake_form",
+      "type": "FORM",
+      "label": "Paste or describe the candidate",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "raw": {
+              "type": "string",
+              "description": "LinkedIn URL, voice-note transcript, pasted profile text, or just a name."
+            },
+            "channel_hint": {
+              "type": "string",
+              "enum": ["linkedin", "referral", "inbound_email", "twitter", "site", "manual"],
+              "default": "manual"
+            },
+            "role_slug": {
+              "type": "string",
+              "description": "Optional role slug. When set, parse_intake scores against this specific role instead of auto-detecting."
+            }
+          },
+          "required": ["raw"]
+        }
+      }
+    },
+    {
+      "id": "parse_intake",
+      "type": "FUNCTION",
+      "label": "Extract facts + score role-fit + render dossier (deterministic)",
+      "config": {
+        "function_name": "parse_intake",
+        "input_mapping": {
+          "raw":          { "type": "expression", "value": "intake_form.raw" },
+          "channel_hint": { "type": "expression", "value": "intake_form.channel_hint" },
+          "role_slug":    { "type": "expression", "value": "intake_form.role_slug", "optional": true }
+        }
+      }
+    },
+    {
+      "id": "materialize",
+      "type": "FUNCTION",
+      "label": "Create candidate row + write dossier file",
+      "config": {
+        "function_name": "create_candidate",
+        "input_mapping": {
+          "name":            { "type": "expression", "value": "parse_intake.name" },
+          "email":           { "type": "expression", "value": "parse_intake.email", "optional": true },
+          "linkedin_url":    { "type": "expression", "value": "parse_intake.linkedin_url", "optional": true },
+          "source":          { "type": "expression", "value": "parse_intake.source" },
+          "role_slug":       { "type": "expression", "value": "parse_intake.role_slug", "optional": true },
+          "referrer_name":   { "type": "expression", "value": "parse_intake.referrer_name", "optional": true },
+          "score":           { "type": "expression", "value": "parse_intake.score" },
+          "next_action":     { "type": "expression", "value": "parse_intake.next_action" },
+          "dossier_markdown":{ "type": "expression", "value": "parse_intake.dossier_markdown" }
+        }
+      }
+    },
+    {
+      "id": "triage",
+      "type": "FUNCTION",
+      "label": "Decide suitable / not suitable + email the founder with verdict",
+      "config": {
+        "function_name": "triage_and_notify",
+        "input_mapping": {
+          "candidate_id": { "type": "expression", "value": "materialize.candidate_id" }
+        }
+      }
+    },
+    { "id": "done", "type": "END", "label": "Triage done" }
+  ],
+  "edges": [
+    { "id": "e1", "source": "intake_form", "target": "parse_intake" },
+    { "id": "e2", "source": "parse_intake", "target": "materialize" },
+    { "id": "e3", "source": "materialize", "target": "triage" },
+    { "id": "e4", "source": "triage",       "target": "done" }
+  ]
+}

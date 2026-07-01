@@ -1,0 +1,14 @@
+{
+  "name": "notify_referrer",
+  "description": "Send an update to a referrer (WhatsApp or email when connected; preview ref otherwise). Stamps referrers.last_update on any non-skipped delivery.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "referrers",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] }
+    ]
+  }
+}

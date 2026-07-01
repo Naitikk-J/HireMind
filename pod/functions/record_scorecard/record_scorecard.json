@@ -1,0 +1,18 @@
+{
+  "name": "record_scorecard",
+  "description": "Save a submitted scorecard, flip the interview's feedback_sent_at, and create a 'decide_offer' task if this was the final round.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "scorecards",
+        "permission_ids": ["datastore.table.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "interviews",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "tasks",
+        "permission_ids": ["datastore.table.read", "datastore.record.write"] }
+    ]
+  }
+}

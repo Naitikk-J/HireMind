@@ -1,0 +1,53 @@
+{
+  "name": "enrich_candidate",
+  "description": "LLM-powered re-analysis of one candidate. The deterministic intake parser produces a baseline dossier + score; this workflow layers real understanding on top: rewrites the dossier prose, refines the score against the role rubric, and sharpens the next-action. Manual trigger from the candidate detail page ('Analyze with AI'). Requires the pod's runtime profile to have an LLM model configured — on cloud this is automatic (system:lemma), on local it requires the operator to wire one. If no model is available the agent node fails and the deterministic dossier stays untouched.",
+  "start": { "type": "MANUAL" },
+  "nodes": [
+    {
+      "id": "start_form",
+      "type": "FORM",
+      "label": "Pick a candidate to enrich",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "candidate_id": { "type": "string", "description": "UUID of the candidate row to re-analyze." }
+          },
+          "required": ["candidate_id"]
+        }
+      }
+    },
+    {
+      "id": "enrich",
+      "type": "AGENT",
+      "label": "Read dossier + role context, produce richer rewrite",
+      "config": {
+        "agent_name": "enrich_dossier",
+        "input_mapping": {
+          "candidate_id": { "type": "expression", "value": "start_form.candidate_id" }
+        }
+      }
+    },
+    {
+      "id": "apply",
+      "type": "FUNCTION",
+      "label": "Write enriched dossier + update candidate row",
+      "config": {
+        "function_name": "apply_dossier_enrichment",
+        "input_mapping": {
+          "candidate_id":              { "type": "expression", "value": "start_form.candidate_id" },
+          "enriched_dossier_markdown": { "type": "expression", "value": "enrich.enriched_dossier_markdown" },
+          "refined_score":             { "type": "expression", "value": "enrich.refined_score" },
+          "refined_next_action":       { "type": "expression", "value": "enrich.refined_next_action" },
+          "reasoning_note":            { "type": "expression", "value": "enrich.reasoning_note", "optional": true }
+        }
+      }
+    },
+    { "id": "done", "type": "END", "label": "Enrichment applied" }
+  ],
+  "edges": [
+    { "id": "e1", "source": "start_form", "target": "enrich" },
+    { "id": "e2", "source": "enrich",     "target": "apply" },
+    { "id": "e3", "source": "apply",      "target": "done" }
+  ]
+}

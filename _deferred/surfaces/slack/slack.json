@@ -1,0 +1,20 @@
+{
+  "name": "slack",
+  "platform": "SLACK",
+  "default_agent_name": "intake_parser",
+  "credential_mode": "CUSTOM",
+  // After installing the Slack app for your workspace via Composio,
+  // paste the workspace account uuid here.
+  "account_id": "REPLACE_WITH_SLACK_ACCOUNT_ID",
+  "is_enabled": false,
+  "config": {
+    "channels": [
+      // Optional: pin a #hiring channel so all hiremind DMs/threads live in one place.
+      // { "channel_id": "C12345678", "channel_name": "hiring" }
+    ],
+    "identity": {
+      // Restrict interviewer DMs to your workspace domain only.
+      "allowed_domains": ["REPLACE_WITH_YOUR_WORKSPACE_DOMAIN"]
+    }
+  }
+}

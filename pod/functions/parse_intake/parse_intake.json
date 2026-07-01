@@ -1,0 +1,14 @@
+{
+  "name": "parse_intake",
+  "description": "Deterministic intake parser. Takes a raw intake string (LinkedIn URL, voice transcript, paste, or referral note) and extracts structured fields + a real, content-bearing dossier markdown. Reads the roles table to do keyword-based role-fit scoring. Does not require an LLM.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

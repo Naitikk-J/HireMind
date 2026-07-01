@@ -1,0 +1,18 @@
+{
+  "name": "schedule_screen",
+  "description": "Book a Google Calendar event for a candidate's screen, attach a Google Meet link via conferenceData.createRequest, invite both the founder and the candidate, and persist the resulting interview row with meet_url + calendar_event_id. Stage-advances the candidate to 'screen_done' (when round=='screen') on success. If the google-calendar connector isn't wired, fails cleanly so the operator UI can surface 'connect calendar' instead of silently doing nothing.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "interviews",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "connector", "resource_name": "google_calendar",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

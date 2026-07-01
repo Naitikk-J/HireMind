@@ -1,0 +1,83 @@
+{
+  "name": "feedback_collect",
+  "description": "Triggered when an interview flips to status='done'. Waits 30 minutes, then DMs the interviewer with a scorecard form, waits for submission, saves the scorecard.",
+  "start": {
+    "type": "DATASTORE_EVENT",
+    "config": {
+      "table_name": "interviews",
+      "operations": ["UPDATE"]
+    }
+  },
+  "nodes": [
+    {
+      "id": "status_route",
+      "type": "DECISION",
+      "label": "Marked done?",
+      "config": {
+        "rules": [
+          { "condition": "start.payload.status == 'done'", "next_node_id": "settle" }
+        ]
+      }
+    },
+    {
+      "id": "settle",
+      "type": "WAIT_UNTIL",
+      "label": "Settle (30 min)",
+      "config": { "timeout_seconds": 1800 }
+    },
+    {
+      "id": "request",
+      "type": "FUNCTION",
+      "label": "DM interviewer with scorecard link",
+      "config": {
+        "function_name": "request_feedback",
+        "input_mapping": {
+          "interview_id": { "type": "expression", "value": "start.metadata.record_id" }
+        }
+      }
+    },
+    {
+      "id": "scorecard_form",
+      "type": "FORM",
+      "label": "Submit scorecard",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "strengths":      { "type": "string" },
+            "concerns":       { "type": "string" },
+            "recommendation": { "type": "string",
+              "enum": ["strong_hire", "hire", "no_hire", "strong_no_hire"] },
+            "notes":          { "type": "string" }
+          },
+          "required": ["recommendation"]
+        },
+        "ui_schema": { "ui:order": ["recommendation", "strengths", "concerns", "notes"] }
+      }
+    },
+    {
+      "id": "save",
+      "type": "FUNCTION",
+      "label": "Save scorecard",
+      "config": {
+        "function_name": "record_scorecard",
+        "input_mapping": {
+          "interview_id":   { "type": "expression", "value": "start.metadata.record_id" },
+          "strengths":      { "type": "expression", "value": "scorecard_form.strengths", "optional": true },
+          "concerns":       { "type": "expression", "value": "scorecard_form.concerns", "optional": true },
+          "recommendation": { "type": "expression", "value": "scorecard_form.recommendation" },
+          "notes":          { "type": "expression", "value": "scorecard_form.notes", "optional": true }
+        }
+      }
+    },
+    { "id": "ignored", "type": "END", "label": "Not a done event" },
+    { "id": "done",    "type": "END", "label": "Scorecard saved" }
+  ],
+  "edges": [
+    { "id": "e0", "source": "status_route", "target": "ignored", "label": "default — other update" },
+    { "id": "e1", "source": "settle",       "target": "request" },
+    { "id": "e2", "source": "request",      "target": "scorecard_form" },
+    { "id": "e3", "source": "scorecard_form","target": "save" },
+    { "id": "e4", "source": "save",         "target": "done" }
+  ]
+}

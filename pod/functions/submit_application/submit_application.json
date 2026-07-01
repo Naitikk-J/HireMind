@@ -1,0 +1,16 @@
+{
+  "name": "submit_application",
+  "description": "Public entry point for candidate-initiated applications. Takes a name, email, optional LinkedIn URL, and a short 'why' paragraph; runs the same parse_intake-style normalisation as our Telegram/manual paths but tags the source as 'site' so the operator knows where it came from. Returns the new candidate id so the apply page can show a confirmation. Idempotent on (email, role_slug) within 5 minutes to swallow accidental double-submits from twitchy 'Submit' buttons.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] }
+    ]
+  }
+}

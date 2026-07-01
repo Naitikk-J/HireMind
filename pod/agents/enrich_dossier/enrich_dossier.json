@@ -1,0 +1,49 @@
+{
+  "name": "enrich_dossier",
+  "description": "Reads a candidate's existing deterministic dossier and the role context, then produces a richer, founder-voice rewrite plus a refined score and next-action. The deterministic parser gives the baseline; this agent layers real understanding on top — analyzing what the candidate actually shipped, matching specific accomplishments to rubric points, flagging genuine concerns. Never mutates state — output is consumed by the `apply_dossier_enrichment` function downstream.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "candidate_id": { "type": "string", "description": "UUID of the candidate to enrich." }
+    },
+    "required": ["candidate_id"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "enriched_dossier_markdown": {
+        "type": "string",
+        "description": "The full rewritten dossier markdown — replaces /candidates/<id>/dossier.md verbatim."
+      },
+      "refined_score": {
+        "type": "number",
+        "description": "Score 0–10 against the role rubric, refined from the deterministic baseline.",
+        "minimum": 0,
+        "maximum": 10
+      },
+      "refined_next_action": {
+        "type": "string",
+        "description": "One concrete next step the founder should take. Max 120 chars."
+      },
+      "reasoning_note": {
+        "type": "string",
+        "description": "One sentence explaining why the score moved (or didn't). Used in the audit trail, never shown to candidates."
+      }
+    },
+    "required": ["enriched_dossier_markdown", "refined_score", "refined_next_action", "reasoning_note"]
+  },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

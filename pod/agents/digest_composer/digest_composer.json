@@ -1,0 +1,28 @@
+{
+  "name": "digest_composer",
+  "description": "Composes the founder's weekly WhatsApp pipeline digest from a pre-computed pipeline state. Prioritized, scannable, ≤ 8 bullets.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "pipeline_state": { "type": "object" },
+      "tone": { "type": "string", "enum": ["weekday_morning", "weekday_evening", "weekend"], "default": "weekday_morning" }
+    },
+    "required": ["pipeline_state"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "message_text": { "type": "string" },
+      "headline": { "type": "string" }
+    },
+    "required": ["message_text", "headline"]
+  },
+  "permissions": {
+    "grants": [
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

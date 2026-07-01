@@ -1,0 +1,18 @@
+{
+  "name": "gmail",
+  "platform": "GMAIL",
+  "default_agent_name": "reply_classifier",
+  "credential_mode": "CUSTOM",
+  // After OAuth-connecting the founder's Gmail via Composio,
+  // paste the account uuid here.
+  "account_id": "REPLACE_WITH_GMAIL_ACCOUNT_ID",
+  "is_enabled": false,
+  "config": {
+    "identity": {
+      // Only match inbound mail from these domains as candidate replies.
+      // Leave empty to accept any sender (the reply_handler workflow
+      // will still only act on messages tied to a known candidate thread).
+      "allowed_domains": []
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "telegram_intake",
+  "description": "Default agent for the Telegram surface (@HiremindIntakebot). Acts as a thin profile feeder, not an evaluator: the founder DMs the bot a LinkedIn URL, pasted resume text, or a short description, and this agent forwards the raw payload to the 'pipe_to_intake' function, which in turn kicks off the same intake workflow that the operator app's 'Add Candidate' modal uses. The intake workflow runs parse_intake \u2192 create_candidate \u2192 triage_and_notify in the background, so the founder gets the real verdict by email (and on the kanban), not in the Telegram chat. Replies on Telegram are intentionally minimal \u2014 one confirmation line per inbound message, no scoring, no judgement.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "permissions": {
+    "grants": [
+      { "resource_type": "function", "resource_name": "pipe_to_intake",
+        "permission_ids": ["function.read", "function.execute"] }
+    ]
+  }
+}

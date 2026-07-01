@@ -1,0 +1,16 @@
+{
+  "name": "backfill_dossiers",
+  "description": "One-shot maintenance function: walk every candidate whose dossier_path is null and write a placeholder dossier markdown. Idempotent. Useful after fixing intake bugs or migrating seed data.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] }
+    ]
+  }
+}

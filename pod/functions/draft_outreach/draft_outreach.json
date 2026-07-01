@@ -1,0 +1,18 @@
+{
+  "name": "draft_outreach",
+  "description": "Deterministic outreach drafter. Replaces the LLM `outreach_drafter` agent. Reads the candidate row, their dossier (already authored by parse_intake), and the role pitch from /knowledge/roles/<slug>/pitch.md; composes a real first-touch message in the founder's voice (per /knowledge/founder-voice.md). Output shape matches the agent — subject + body + voice_check — so downstream record_draft is unchanged.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

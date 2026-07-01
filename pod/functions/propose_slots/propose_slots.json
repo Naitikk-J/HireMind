@@ -1,0 +1,12 @@
+{
+  "name": "propose_slots",
+  "description": "Read the founder's Google Calendar free-busy and return 3 candidate 25-minute slots within the next 7 business days. Used by draft_outreach to make intro/screening emails concrete instead of '…happy to chat sometime'. Degrades to a deterministic fallback (next 3 weekday mornings) if the gcal connector isn't wired or the call fails, so outreach drafts always succeed.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "connector", "resource_name": "google_calendar",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

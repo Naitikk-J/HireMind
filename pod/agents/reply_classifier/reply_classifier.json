@@ -1,0 +1,30 @@
+{
+  "name": "reply_classifier",
+  "description": "Classifies an inbound candidate reply into an actionable intent so the workflow can branch.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "message_id": { "type": "string" },
+      "body": { "type": "string" }
+    },
+    "required": ["message_id", "body"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "intent": { "type": "string", "enum": ["interest", "slot_selection", "question", "decline", "other"] },
+      "confidence": { "type": "number" },
+      "extracted_slot": { "type": ["string", "null"], "description": "ISO datetime if intent=slot_selection" },
+      "reasoning": { "type": "string" }
+    },
+    "required": ["intent", "confidence", "reasoning"]
+  },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] }
+    ]
+  }
+}

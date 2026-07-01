@@ -1,0 +1,14 @@
+{
+  "name": "create_role",
+  "description": "Create a role end-to-end: roles row + /knowledge/roles/<slug>/pitch.md + /knowledge/roles/<slug>/rubric.md, with the file paths linked back on the row. Auto-generates a unique slug from the title if not supplied. Idempotent on title — re-running with a colliding slug appends -2/-3/... so the operator UI's 'Add Role' button is safe to spam-click. Once this returns, downstream consumers (intake parser scoring, dossier enricher, candidate-view) see the role immediately.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read", "folder.write"] }
+    ]
+  }
+}

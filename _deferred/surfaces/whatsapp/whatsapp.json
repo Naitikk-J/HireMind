@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp",
+  "platform": "WHATSAPP",
+  "default_agent_name": "intake_parser",
+  "credential_mode": "CUSTOM",
+  // After running `lemma connectors connect-requests create twilio_whatsapp ...`,
+  // paste the resulting account uuid here.
+  "account_id": "REPLACE_WITH_TWILIO_WHATSAPP_ACCOUNT_ID",
+  "is_enabled": false,
+  "config": {
+    "identity": {
+      // Only the founder can drop intake voice notes / approve actions via WhatsApp.
+      // Add other approved phone numbers here in E.164 format.
+      "allowed_phones": ["REPLACE_WITH_FOUNDER_PHONE_E164"]
+    }
+  }
+}

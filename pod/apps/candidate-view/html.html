@@ -1,0 +1,1355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Your application · Hiremind</title>
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FAFAFB;
+    --surface: #FFFFFF;
+    --fg: #0F1014;
+    --muted: #5C5E69;
+    --subtle: #ECEDF0;
+    --accent: #5E55D4;
+    --accent-soft: #ECEAFE;
+    --danger: #D24A4A;
+    --success: #1D9D6E;
+    --max: 580px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.55;
+    background-image:
+      radial-gradient(900px 520px at -10% -20%, rgba(94, 85, 212, 0.07), transparent 60%),
+      radial-gradient(700px 480px at 110% 120%, rgba(96, 165, 250, 0.04), transparent 60%);
+  }
+  .wrap { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+  .card {
+    width: 100%;
+    max-width: var(--max);
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 14px;
+    padding: 36px 32px 28px;
+    box-shadow: 0 1px 2px rgba(15, 16, 20, 0.03), 0 16px 36px -16px rgba(15, 16, 20, 0.08);
+  }
+  .card.wide { max-width: 760px; padding: 28px; }
+  .brand { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; }
+  .brand-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    line-height: 1.15;
+    margin: 18px 0 6px;
+  }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  .row { padding: 16px 0; border-top: 1px solid var(--subtle); }
+  .row:last-of-type { border-bottom: 1px solid var(--subtle); }
+  .row .k { color: var(--muted); font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; }
+  .row .v { font-size: 15px; margin-top: 4px; color: var(--fg); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 12px; font-weight: 500; letter-spacing: 0;
+  }
+  .pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .timeline { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--subtle); }
+  .step { display: flex; align-items: flex-start; gap: 12px; padding: 7px 0; }
+  .step .marker { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--subtle); flex-shrink: 0; margin-top: 5px; background: var(--surface); }
+  .step.done .marker { background: var(--accent); border-color: var(--accent); }
+  .step.active .marker { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .step .label { font-size: 13.5px; color: var(--fg); }
+  .step.future .label { color: var(--muted); }
+  .step .label small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .footer { margin-top: 28px; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .footer a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--subtle); }
+  .footer a:hover { border-color: var(--accent); }
+  .stamp { margin-top: 14px; font-size: 11px; color: var(--muted); }
+  .error { text-align: center; color: var(--muted); padding: 40px 0; font-size: 14px; }
+  .error h1 { font-size: 22px; }
+
+  /* Interview CTA on the status page */
+  .cta {
+    margin-top: 22px;
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--accent-soft);
+    background: linear-gradient(180deg, #FAFAFE, var(--surface));
+    border-radius: 12px;
+  }
+  .cta-title { font-size: 15px; font-weight: 600; color: var(--fg); letter-spacing: -0.005em; }
+  .cta-sub   { font-size: 13px; color: var(--muted); }
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 6px; padding: 10px 14px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 10px;
+    font-family: inherit; font-size: 13.5px; font-weight: 500;
+    cursor: pointer; transition: filter .12s ease;
+  }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-primary:disabled { opacity: .5; cursor: default; }
+  .btn-ghost {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 8px 12px;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--subtle); border-radius: 8px;
+    font-family: inherit; font-size: 12.5px;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { color: var(--fg); border-color: var(--accent); }
+  .btn-danger {
+    background: var(--danger); color: white; border: none;
+  }
+
+  .submit-block {
+    margin-top: 18px;
+    padding: 16px;
+    background: #F4F6FF;
+    border: 1px dashed #D7D9F0;
+    border-radius: 12px;
+  }
+  .submit-block h3 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+  .submit-block p  { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+  .code-block {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    background: var(--surface); color: var(--fg);
+    padding: 10px 12px;
+    border: 1px solid var(--subtle); border-radius: 8px;
+    word-break: break-all;
+    max-height: 96px; overflow: auto;
+  }
+
+  /* ---------------- Video interview specific layout ---------------- */
+
+  .iv-stage {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #111118;
+    aspect-ratio: 16 / 9;
+    box-shadow: 0 1px 2px rgba(15, 16, 20, 0.04), 0 16px 30px -18px rgba(15, 16, 20, 0.18);
+    border: 1px solid var(--subtle);
+  }
+  .iv-avatar {
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    background:
+      radial-gradient(60% 60% at 50% 38%, rgba(94, 85, 212, 0.55), transparent 70%),
+      radial-gradient(40% 40% at 50% 70%, rgba(96, 165, 250, 0.35), transparent 70%),
+      #15151D;
+    color: white;
+  }
+  .iv-avatar .orb {
+    width: 144px; height: 144px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #E2DFFF, #8B7EF9 50%, #4338CA 100%);
+    box-shadow: 0 0 0 0 rgba(139, 126, 249, 0.55);
+    transition: transform .18s ease, box-shadow .25s ease;
+  }
+  .iv-avatar.speaking .orb {
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1.0); box-shadow: 0 0 0 0 rgba(139, 126, 249, 0.5); }
+    50%      { transform: scale(1.08); box-shadow: 0 0 0 28px rgba(139, 126, 249, 0); }
+  }
+  .iv-avatar-name {
+    position: absolute; top: 16px; left: 18px;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+  }
+  .iv-q-readout {
+    position: absolute; left: 18px; right: 18px; bottom: 16px;
+    background: rgba(20, 20, 28, 0.78);
+    color: white;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.45;
+    backdrop-filter: blur(6px);
+    max-height: 36%;
+    overflow: auto;
+  }
+  .iv-q-readout small { display: block; opacity: 0.65; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+
+  .iv-self {
+    position: absolute; right: 14px; top: 14px;
+    width: 130px; height: 96px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  }
+  .iv-self video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+  .iv-self .indicator {
+    position: absolute; left: 8px; bottom: 8px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--danger); box-shadow: 0 0 0 2px rgba(210, 74, 74, 0.25);
+  }
+  .iv-self .indicator.live { background: var(--success); box-shadow: 0 0 0 2px rgba(29, 157, 110, 0.25); }
+
+  .iv-controls {
+    margin-top: 14px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+  }
+  .iv-progress {
+    font-size: 12px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .iv-progress .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--subtle); }
+  .iv-progress .dot.done { background: var(--accent); }
+  .iv-progress .dot.active { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  .iv-transcript {
+    margin-top: 14px;
+    background: #F8F8FA;
+    border: 1px solid var(--subtle);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--fg);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 84px;
+  }
+  .iv-transcript.empty { color: var(--muted); font-style: italic; }
+  .iv-transcript .interim { color: var(--muted); }
+
+  .iv-tip {
+    margin-top: 10px;
+    font-size: 12px; color: var(--muted);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .iv-tip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex-shrink: 0; }
+
+  .iv-warn {
+    background: rgba(210, 74, 74, 0.07);
+    border: 1px solid rgba(210, 74, 74, 0.20);
+    color: var(--danger);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-top: 14px;
+  }
+
+  .iv-textarea {
+    width: 100%; min-height: 88px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--subtle); border-radius: 10px;
+    font-family: inherit; font-size: 13.5px; line-height: 1.5;
+    resize: vertical;
+    background: var(--surface);
+  }
+  .iv-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+  /* Permission gate */
+  .gate {
+    text-align: center;
+    padding: 26px 18px 6px;
+  }
+  .gate-icon {
+    width: 56px; height: 56px; margin: 0 auto 14px;
+    border-radius: 16px;
+    background: var(--accent-soft);
+    display: grid; place-items: center;
+    color: var(--accent);
+    font-size: 30px;
+  }
+  .gate h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; letter-spacing: -0.005em; }
+  .gate p  { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; }
+
+  @media (max-width: 480px) {
+    .card { padding: 26px 20px; border-radius: 12px; }
+    .card.wide { padding: 22px 18px; }
+    h1 { font-size: 24px; }
+    .iv-self { width: 102px; height: 76px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card" id="root"></main>
+  </div>
+
+<script>
+  /*
+   * Hiremind candidate-view — two-mode public page.
+   *
+   *   1) STATUS view: read-only pipeline snapshot, kept verbatim from
+   *      previous versions so old links keep working.
+   *
+   *   2) INTERVIEW view: AI-powered VIDEO interview. The candidate's webcam
+   *      and mic are required. An AI avatar SPEAKS each question via the
+   *      browser's SpeechSynthesis API. The candidate's spoken answer is
+   *      captured by SpeechRecognition (Chrome/Edge/Safari built-in, free,
+   *      multilingual — Whisper-quality on most modern devices). A frame
+   *      from the webcam is snapped at the end of each question for a
+   *      lightweight proctor record. At the end, all of this gets bundled
+   *      into a transcript share-code (same encoding the operator app's
+   *      paste handler already understands) that the candidate emails back
+   *      to the founder. If their browser can't do live STT, we fall back
+   *      to a typed answer per question so nobody is locked out.
+   *
+   * The page never makes a network call to Lemma — all candidate state
+   * lives in the URL hash payload, and the transcript flows back to the
+   * founder out-of-band (email/Slack/etc.) where the operator app decodes
+   * it and triggers the `evaluate_interview` function. That keeps this
+   * page fully token-gated and offline-capable.
+   */
+
+  var STAGES = [
+    { key: "sourced",      label: "Application received",       hint: "Founder is reviewing your profile" },
+    { key: "reviewed",     label: "Profile reviewed",           hint: "Founder is preparing to reach out" },
+    { key: "intro_sent",   label: "Initial outreach sent",      hint: "Awaiting your reply" },
+    { key: "replied",      label: "Conversation started",       hint: "Scheduling the intro call" },
+    { key: "screen_done",  label: "Screening complete",         hint: "Next: your AI video interview from this page" },
+    { key: "onsite_done",  label: "Interview",                  hint: "Run your AI video interview from this page when you're ready" },
+    { key: "offer",        label: "Offer stage",                hint: "Decision pending" },
+    { key: "hired",        label: "Welcome aboard",             hint: "We'll be in touch with logistics" }
+  ];
+
+  var CLOSED_KEYS = { closed: 1, rejected: 1, passed: 1 };
+  var INTERVIEW_STAGE_KEY = "onsite_done";
+
+  var DEFAULT_QUESTIONS = [
+    "Walk me through the project you're proudest of from the last two years — what did you build, what trade-offs did you make, and what would you do differently now?",
+    "Tell me about the hardest technical (or operational) problem you've solved end-to-end. How did you debug it?",
+    "Why this role specifically? What's the part of the job you'd find most energizing in the first six months?",
+    "Describe a time you disagreed with a teammate or founder. How did you handle it and what was the outcome?",
+    "What questions do you have for the founder about the team, the product, or how decisions get made here?"
+  ];
+
+  /* ----- Conversation engine -----------------------------------------
+   *
+   * Real interviewers don't just read a script — they hear an answer and
+   * dig deeper. This rule-driven cross-questioner does that without
+   * needing an LLM or any network call. Each rule has:
+   *   - test(answer, mainQ)  → returns a captured fragment to interpolate
+   *                            (or false if the rule doesn't apply)
+   *   - probe(fragment)      → returns the follow-up question to speak
+   *   - id                   → so we don't repeat the same probe twice
+   *                            on the same main question
+   *
+   * Order matters: the first matching rule wins, so we put the highest-
+   * signal probes (metrics, named tools, claimed outcomes) above the
+   * generic "give me an example" fallback.
+   */
+
+  var METRIC_PATTERN = /\b(\d+(?:\.\d+)?)\s?(%|x|million|m\b|k\b|billion|b\b|users?|requests?|reqs?|ms|seconds?|hours?|days?|weeks?|months?|years?)/i;
+  var TOOL_PATTERN = /\b(python|typescript|javascript|react|next\.?js|node|postgres|mysql|redis|kafka|airflow|terraform|kubernetes|docker|aws|gcp|azure|graphql|pytorch|tensorflow|langchain|langgraph|openai|claude|gpt|llama|figma|tailwind|stripe|django|flask|fastapi|rust|go\b|swift|kotlin|java\b|ruby|rails)\b/i;
+  var SHIP_PATTERN = /\b(shipped|launched|deployed|released|rolled\s?out|went\s?live)\b/i;
+  var CONFLICT_PATTERN = /\b(disagree(?:d|ment)?|argue(?:d)?|push(?:ed)?\s?back|conflict|frustrat(?:ed|ing)|tension)\b/i;
+  var FAIL_PATTERN = /\b(fail(?:ed|ure)?|broke|bug|incident|outage|mistake|wrong|didn['']t\s?work|setback)\b/i;
+  var WE_TEAM_PATTERN = /\b(we|our\s?team|the\s?team)\b/i;
+  var I_OWNED_PATTERN = /\b(i\s+(?:built|shipped|owned|led|architected|wrote|designed|debugged|deployed))/i;
+  var COMPANY_PATTERN = /\b(stripe|notion|linear|vercel|figma|anthropic|openai|google|meta|microsoft|apple|amazon|netflix|airbnb|uber|databricks|snowflake|cursor|replit|hugging\s?face|cohere|mistral|nvidia)\b/i;
+  var VAGUE_PATTERN = /\b(stuff|things|various|lots\s?of|a\s?lot|kind\s?of|sort\s?of|basically|generally|usually)\b/i;
+  var WORD_RE = /\b\w+\b/g;
+
+  function _wordCount(s) {
+    var m = String(s || "").match(WORD_RE);
+    return m ? m.length : 0;
+  }
+
+  function _trimFragment(s, max) {
+    s = String(s || "").trim();
+    if (s.length <= (max || 60)) return s;
+    return s.slice(0, (max || 60) - 1).replace(/\s+\S*$/, "") + "…";
+  }
+
+  var FOLLOWUP_RULES = [
+    {
+      // Mentioned a hard metric — every interviewer worth their salt
+      // wants to know how it was measured and what the baseline was.
+      id: "metric_methodology",
+      test: function (ans) {
+        var m = ans.match(METRIC_PATTERN);
+        return m ? m[0] : false;
+      },
+      probe: function (frag) {
+        return "You mentioned " + frag + " — how did you measure that? What was the baseline before, and over what timeframe?";
+      },
+    },
+    {
+      // Claimed a ship/launch — go after the surprises and the cost.
+      id: "ship_surprise",
+      test: function (ans) {
+        return SHIP_PATTERN.test(ans) ? "the launch" : false;
+      },
+      probe: function () {
+        return "When you actually shipped that, what surprised you most? And what's the one thing you'd build differently if you started over today?";
+      },
+    },
+    {
+      // Mentioned conflict / disagreement — interviewers care about
+      // resolution + what was learned, not the disagreement itself.
+      id: "conflict_resolution",
+      test: function (ans) {
+        return CONFLICT_PATTERN.test(ans) ? true : false;
+      },
+      probe: function () {
+        return "How did that disagreement resolve in the end? And if you faced the same situation tomorrow, what would you do differently?";
+      },
+    },
+    {
+      // Named a specific tool — find out the trade-off awareness behind
+      // the choice. Generic "I used X" answers tell you nothing.
+      id: "tool_tradeoff",
+      test: function (ans) {
+        var m = ans.match(TOOL_PATTERN);
+        return m ? m[1] : false;
+      },
+      probe: function (frag) {
+        return "You picked " + frag + " specifically — what were the alternatives you considered, and what made " + frag + " the right call at that point?";
+      },
+    },
+    {
+      // Mentioned a named company — interesting if they actually worked
+      // there or just orbited it. Either way the founder wants context.
+      id: "company_role",
+      test: function (ans) {
+        var m = ans.match(COMPANY_PATTERN);
+        return m ? m[1] : false;
+      },
+      probe: function (frag) {
+        return "You mentioned " + frag + " — were you on the team that did that, and what was your specific contribution?";
+      },
+    },
+    {
+      // Mentioned a failure / mistake — go for the lesson, not the wound.
+      id: "failure_lesson",
+      test: function (ans) {
+        return FAIL_PATTERN.test(ans) ? true : false;
+      },
+      probe: function () {
+        return "What was the actual lesson you walked away with from that? Where has it changed how you operate since?";
+      },
+    },
+    {
+      // "We did X" without any "I did Y" — pin down ownership explicitly,
+      // because hiring on team credit is one of the most common mistakes.
+      id: "ownership_clarify",
+      test: function (ans) {
+        return (WE_TEAM_PATTERN.test(ans) && !I_OWNED_PATTERN.test(ans)) ? true : false;
+      },
+      probe: function () {
+        return "You said 'we' a few times there — can you separate that out? What were the specific parts you owned end to end, versus what the rest of the team drove?";
+      },
+    },
+    {
+      // Vague filler language signals the candidate isn't ready to be
+      // specific. Press for a concrete instance.
+      id: "vague_concrete",
+      test: function (ans) {
+        var v = (ans.match(VAGUE_PATTERN) || []).length;
+        return v >= 2 ? true : false;
+      },
+      probe: function () {
+        return "Can you make that more concrete for me? Walk through one specific instance — what happened, what you did, what came out of it.";
+      },
+    },
+    {
+      // Short answer fallback — most candidates open low and need a nudge.
+      id: "short_answer",
+      test: function (ans) {
+        return _wordCount(ans) < 30 ? true : false;
+      },
+      probe: function () {
+        return "Tell me more — I'd love some more detail on that. What's the part of it you find most interesting or hardest to explain?";
+      },
+    },
+  ];
+
+  /* Pick the best contextual follow-up for an answer. Returns null when
+   * no rule fires (rare — the short-answer rule is the safety net) or
+   * when every applicable rule has already been used on this main
+   * question (we cap at MAX_FOLLOWUPS to keep things moving). */
+  function pickFollowUp(answer, mainQ, askedIds) {
+    askedIds = askedIds || {};
+    for (var i = 0; i < FOLLOWUP_RULES.length; i++) {
+      var rule = FOLLOWUP_RULES[i];
+      if (askedIds[rule.id]) continue;
+      var frag = rule.test(answer, mainQ);
+      if (frag) {
+        return { id: rule.id, text: rule.probe(frag) };
+      }
+    }
+    return null;
+  }
+
+  // Short acknowledgments the AI says before its follow-up so the
+  // conversation feels reactive instead of robotic. Picked at random.
+  var ACK_PHRASES = [
+    "Got it.",
+    "Interesting — quick follow-up.",
+    "Makes sense — let me dig into that a bit.",
+    "Thanks — one more on that.",
+    "Cool. One thing I want to understand better:",
+    "Helpful. Quick clarifying question:",
+  ];
+  function pickAck() {
+    return ACK_PHRASES[Math.floor(Math.random() * ACK_PHRASES.length)];
+  }
+
+  // Phrases that signal "moving on to the next main question" so the
+  // transition is natural and the candidate hears a beat between blocks.
+  var TRANSITION_PHRASES = [
+    "Great, let's move on.",
+    "Thanks — switching gears now.",
+    "Got everything I needed there. Next question:",
+    "Appreciated. Let's take the next one.",
+  ];
+  function pickTransition() {
+    return TRANSITION_PHRASES[Math.floor(Math.random() * TRANSITION_PHRASES.length)];
+  }
+
+  // Silence threshold for auto-advancing: if no new transcript fragment
+  // arrives for this many milliseconds AND we have something to work
+  // with, we treat the candidate as done answering and let the AI
+  // respond. Tuned so it doesn't barge in on a normal "um, let me think"
+  // pause but doesn't leave the candidate sitting in awkward silence.
+  var SILENCE_MS = 2800;
+  // Hard cap so a topic doesn't sprawl. The first main question gets
+  // up to MAX_FOLLOWUPS follow-up turns; after that the AI moves on.
+  var MAX_FOLLOWUPS = 2;
+
+  function stageRank(s) {
+    for (var i = 0; i < STAGES.length; i++) if (STAGES[i].key === s) return i;
+    return -1;
+  }
+  function escapeHtml(str) {
+    return String(str || "").replace(/[&<>"]/g, function (c) {
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c];
+    });
+  }
+  function b64uEncodeJson(obj) {
+    var json = JSON.stringify(obj);
+    var bytes = new TextEncoder().encode(json);
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function b64uDecodeJson(s) {
+    var b64 = String(s || "").replace(/-/g, "+").replace(/_/g, "/");
+    while (b64.length % 4) b64 += "=";
+    var binary = atob(b64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+  }
+  function readUrlState() {
+    var hash = String(window.location.hash || "").replace(/^#/, "");
+    var hp = new URLSearchParams(hash);
+    var d = hp.get("d");
+    var view = hp.get("view") || "status";
+    if (!d) {
+      var qp = new URLSearchParams(window.location.search);
+      d = qp.get("d");
+    }
+    if (!d) return { payload: null, view: view };
+    try {
+      var payload = b64uDecodeJson(d);
+      if (!payload || typeof payload !== "object") return { payload: null, view: view };
+      return { payload: payload, view: view };
+    } catch (e) {
+      return { payload: null, view: view };
+    }
+  }
+  function formatStamp(iso) {
+    if (!iso) return "";
+    try {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    } catch (e) {
+      return "";
+    }
+  }
+
+  /* ---------- STATUS view ---------- */
+
+  function renderStatus(payload) {
+    var root = document.getElementById("root");
+    root.classList.remove("wide");
+    var name = payload.name || "you";
+    var firstName = String(name).split(" ")[0] || "you";
+    var stage = payload.stage || "sourced";
+    var roleTitle = payload.role_title || "an open role";
+    var founderName = payload.founder_name || "the founder";
+    var responseHours = Number(payload.typical_response_hours) || 48;
+    var stampLabel = formatStamp(payload.generated_at);
+
+    if (CLOSED_KEYS[stage]) {
+      root.innerHTML =
+        '<div class="brand"><span class="brand-dot"></span><span>Hiremind</span></div>' +
+        '<h1>Hi ' + escapeHtml(firstName) + ' —</h1>' +
+        '<p class="sub">Your application for ' + escapeHtml(roleTitle) + ' has been closed out.</p>' +
+        '<div class="row"><div class="k">Status</div>' +
+          '<div class="v"><span class="pill">No longer in pipeline</span></div></div>' +
+        '<div class="footer">' +
+          'If you\'d like more context, reply to your last email from ' + escapeHtml(founderName) + ' — they read every one.' +
+        '</div>' +
+        (stampLabel ? '<div class="stamp">Snapshot as of ' + escapeHtml(stampLabel) + '</div>' : '');
+      return;
+    }
+
+    var rank = stageRank(stage);
+    if (rank < 0) rank = 0;
+    var current = STAGES[rank] || STAGES[0];
+    var steps = STAGES.map(function (s, i) {
+      var state = i < rank ? "done" : (i === rank ? "active" : "future");
+      var hint = i === rank ? '<small>' + escapeHtml(s.hint) + '</small>' : '';
+      return '<div class="step ' + state + '"><div class="marker"></div>' +
+             '<div class="label">' + escapeHtml(s.label) + hint + '</div></div>';
+    }).join("");
+
+    var ctaHtml = "";
+    if (stage === INTERVIEW_STAGE_KEY) {
+      var questions = Array.isArray(payload.interview_questions)
+        ? payload.interview_questions.filter(function (q) { return typeof q === "string" && q.trim().length > 0; })
+        : [];
+      if (questions.length === 0) questions = DEFAULT_QUESTIONS.slice();
+      payload.interview_questions = questions;
+      ctaHtml =
+        '<div class="cta">' +
+          '<div class="cta-title">Time for your AI video interview</div>' +
+          '<div class="cta-sub">' +
+            'A short conversational screen on video — about ' + questions.length + ' question' + (questions.length === 1 ? '' : 's') + '. ' +
+            'You\'ll need your camera and mic on. The AI will speak each question; you answer out loud in any language you\'re comfortable with. ' +
+            'At the end you\'ll get a transcript code to send to ' + escapeHtml(founderName) + '.' +
+          '</div>' +
+          '<button class="btn-primary" id="start-interview">Start video interview →</button>' +
+        '</div>';
+    }
+
+    root.innerHTML =
+      '<div class="brand"><span class="brand-dot"></span><span>Hiremind</span></div>' +
+      '<h1>Hi ' + escapeHtml(firstName) + ' —</h1>' +
+      '<p class="sub">You\'re in ' + escapeHtml(founderName) + '\'s hiring process for ' + escapeHtml(roleTitle) + '.</p>' +
+      '<div class="row"><div class="k">Where you are</div>' +
+        '<div class="v"><span class="pill">' + escapeHtml(current.label) + '</span></div></div>' +
+      '<div class="row"><div class="k">What\'s next</div>' +
+        '<div class="v">' + escapeHtml(current.hint) + '</div></div>' +
+      '<div class="row"><div class="k">Typical response time</div>' +
+        '<div class="v">Within ' + responseHours + ' hours on business days</div></div>' +
+      ctaHtml +
+      '<div class="timeline">' + steps + '</div>' +
+      '<div class="footer">' +
+        'Questions? Reply directly to your last email from ' + escapeHtml(founderName) + '. ' +
+        '<br/>We\'ll never ask for personal documents on this page.' +
+      '</div>' +
+      (stampLabel ? '<div class="stamp">Snapshot as of ' + escapeHtml(stampLabel) + '</div>' : '');
+
+    var startBtn = document.getElementById("start-interview");
+    if (startBtn) {
+      startBtn.addEventListener("click", function () {
+        var hp = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        hp.set("view", "interview");
+        window.location.hash = hp.toString();
+        renderInterview(payload);
+      });
+    }
+  }
+
+  /* ---------- VIDEO INTERVIEW view ---------- */
+
+  function renderInterview(payload) {
+    var root = document.getElementById("root");
+    root.classList.add("wide");
+
+    var rawQs = Array.isArray(payload.interview_questions)
+      ? payload.interview_questions.filter(function (q) { return typeof q === "string" && q.trim().length > 0; })
+      : [];
+    if (rawQs.length === 0) rawQs = DEFAULT_QUESTIONS.slice();
+    var firstName = String(payload.name || "you").split(" ")[0] || "you";
+    var founderName = payload.founder_name || "the founder";
+    var roleTitle = payload.role_title || "the role";
+
+    // Feature detection. SpeechRecognition is prefixed on Safari; SpeechSynthesis
+    // is unprefixed everywhere modern. We treat each as optional — the
+    // interview always works; missing pieces just degrade UX.
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    var hasTTS = "speechSynthesis" in window && typeof window.SpeechSynthesisUtterance === "function";
+
+    var state = {
+      phase: "gate",          // gate | ready | speaking | listening | between | finished
+      qIdx: 0,
+      // Follow-up bookkeeping for the *current* main question. Reset
+      // whenever the AI advances to the next main question.
+      followupCount: 0,
+      askedFollowupIds: {},
+      // The text of the question (main or follow-up) the candidate is
+      // currently answering. We separate this from rawQs[qIdx] so
+      // follow-ups can be added on the fly without polluting the script.
+      currentQuestionText: "",
+      // True only on the first turn of a main question — used so the
+      // progress dots don't tick forward on follow-ups.
+      isMainTurn: true,
+      answers: [],            // { q, a, ts, lang, frame_thumb?, is_followup? }
+      mediaStream: null,
+      videoEl: null,
+      recognizer: null,
+      interimTranscript: "",
+      currentTranscript: "",
+      currentLang: navigator.language || "en-US",
+      proctorFlags: 0,
+      proctorTimer: null,
+      tickTimer: null,
+      // Auto-advance silence detector. Resets every time a new
+      // transcript fragment arrives. Cleared in stopRecognizer().
+      silenceTimer: null,
+      // Set during speaking/transition so silence detection doesn't fire
+      // while the AI itself is talking.
+      aiSpeaking: false,
+      ttsQueue: [],
+      cancelTTS: function () {
+        try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* noop */ }
+      },
+    };
+
+    /* --- DOM rendering helpers ------------------------------------ */
+
+    function setRoot(html) {
+      root.innerHTML = html;
+    }
+
+    function progressDots() {
+      var html = '<div class="iv-progress">';
+      for (var i = 0; i < rawQs.length; i++) {
+        var cls = i < state.qIdx ? "dot done" : (i === state.qIdx ? "dot active" : "dot");
+        html += '<span class="' + cls + '"></span>';
+      }
+      html += '<span style="margin-left:6px;">Question ' + Math.min(state.qIdx + 1, rawQs.length) + ' of ' + rawQs.length + '</span>';
+      html += '</div>';
+      return html;
+    }
+
+    /* --- Permission gate ------------------------------------------ */
+
+    function renderGate(errMsg) {
+      setRoot(
+        '<div class="brand"><span class="brand-dot"></span><span>Hiremind · Interview</span></div>' +
+        '<div class="gate">' +
+          '<div class="gate-icon">🎥</div>' +
+          '<h2>Ready when you are, ' + escapeHtml(firstName) + '</h2>' +
+          '<p>Your interview for ' + escapeHtml(roleTitle) + ' will be conducted on video. ' +
+          'We need access to your <strong>camera</strong> and <strong>microphone</strong> to begin.</p>' +
+          (errMsg ? '<div class="iv-warn" style="margin: 0 0 14px; text-align:left;">' + escapeHtml(errMsg) + '</div>' : '') +
+          '<button class="btn-primary" id="gate-start">Allow camera & mic and start</button>' +
+          '<div style="margin-top: 14px;">' +
+            '<button class="btn-ghost" id="gate-back">Back to status</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="iv-tip" style="justify-content:center;">' +
+          '<span class="iv-tip-dot"></span>' +
+          '<span>You\'ll answer ' + rawQs.length + ' question' + (rawQs.length === 1 ? '' : 's') +
+          ' out loud. The AI will read each one aloud — you can speak in any language.</span>' +
+        '</div>'
+      );
+      document.getElementById("gate-start").addEventListener("click", requestMedia);
+      document.getElementById("gate-back").addEventListener("click", backToStatus);
+    }
+
+    async function requestMedia() {
+      try {
+        var stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
+          audio: true,
+        });
+        state.mediaStream = stream;
+        state.phase = "ready";
+        renderStage();
+        // Tiny pause so the avatar + camera tile both paint before the first
+        // question; otherwise the camera shows a black frame for ~300ms.
+        setTimeout(askCurrentQuestion, 350);
+      } catch (e) {
+        var msg = "We couldn't access your camera and microphone. Please grant permission in your browser settings, then click Start again.";
+        if (e && (e.name === "NotAllowedError" || e.name === "PermissionDeniedError")) {
+          msg = "You declined the camera/mic prompt. Click the camera icon in your browser's address bar to allow access, then refresh this page.";
+        } else if (e && e.name === "NotFoundError") {
+          msg = "No camera or microphone was detected. Plug one in and try again.";
+        }
+        renderGate(msg);
+      }
+    }
+
+    /* --- Stage / camera tile -------------------------------------- */
+
+    function renderStage() {
+      setRoot(
+        '<div class="brand"><span class="brand-dot"></span><span>Hiremind · Interview</span></div>' +
+        '<h1 style="margin-top:14px;">Interview for ' + escapeHtml(roleTitle) + '</h1>' +
+        '<p class="sub">Speak naturally — no time limit. Click <strong>Done with answer</strong> when you finish each question.</p>' +
+        '<div class="iv-stage">' +
+          '<div class="iv-avatar" id="iv-avatar">' +
+            '<div class="iv-avatar-name">Hiremind AI</div>' +
+            '<div class="orb"></div>' +
+            '<div class="iv-q-readout" id="iv-q-readout"><small>Question</small>Loading…</div>' +
+          '</div>' +
+          '<div class="iv-self">' +
+            '<video id="iv-self-video" autoplay playsinline muted></video>' +
+            '<span class="indicator" id="iv-rec-dot" title="Recording status"></span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="iv-controls">' +
+          progressDots() +
+          '<div style="display:flex; gap:8px; flex-wrap: wrap;">' +
+            (SR ? '<button class="btn-ghost" id="iv-replay" title="Have the AI re-read the question">↻ Replay question</button>' : '') +
+            '<button class="btn-primary" id="iv-next" disabled title="Or just stop talking — the AI will respond after a brief pause">' +
+              (state.qIdx === rawQs.length - 1 && state.isMainTurn ? 'Done — finish interview' : 'Done with answer →') +
+            '</button>' +
+            '<button class="btn-ghost btn-danger" id="iv-end" title="End the interview early">End interview</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="iv-transcript empty" id="iv-transcript">' +
+          (SR
+            ? 'Listening will start as soon as the AI finishes the question…'
+            : 'Your browser doesn\'t support live transcription. You\'ll be able to type the answer below after the AI finishes the question.') +
+        '</div>' +
+        (SR ? '' : '<textarea class="iv-textarea" id="iv-fallback" placeholder="Type your answer here once the AI finishes speaking…" style="display:none;"></textarea>') +
+        '<div class="iv-tip">' +
+          '<span class="iv-tip-dot"></span>' +
+          '<span>Speak naturally — the AI listens, transcribes, and will ask follow-up questions in real time. Just stop talking when you\'re done and it\'ll respond after a short pause. Any language is fine; stay on-camera and don\'t switch tabs.</span>' +
+        '</div>'
+      );
+
+      // Attach the live camera feed.
+      state.videoEl = document.getElementById("iv-self-video");
+      try { state.videoEl.srcObject = state.mediaStream; } catch (e) { /* older browsers */ }
+
+      document.getElementById("iv-next").addEventListener("click", finishCurrentAnswer);
+      document.getElementById("iv-end").addEventListener("click", confirmEndEarly);
+      var replay = document.getElementById("iv-replay");
+      if (replay) replay.addEventListener("click", function () { askCurrentQuestion(true); });
+
+      // Lightweight proctor: increment a flag count whenever the page loses
+      // focus during the active listening phase, when the camera tile turns
+      // off, or when the visibility goes hidden. These are not destructive —
+      // they just nudge the founder during evaluation.
+      window.addEventListener("blur", onBlurDuringInterview);
+      document.addEventListener("visibilitychange", onVisChange);
+    }
+
+    function onBlurDuringInterview() {
+      if (state.phase === "listening") {
+        state.proctorFlags += 1;
+      }
+    }
+    function onVisChange() {
+      if (document.visibilityState === "hidden" && state.phase === "listening") {
+        state.proctorFlags += 1;
+      }
+    }
+
+    /* --- Ask a question (main OR follow-up) ------------------------ */
+
+    // Speak the given text via TTS, then start listening for the
+    // candidate's response. Used for the initial question AND every
+    // follow-up. `prefix` is an optional acknowledgment phrase spoken
+    // first ("Got it." / "Interesting…") so the AI sounds reactive.
+    function speakAndListen(text, opts) {
+      opts = opts || {};
+      var avatar = document.getElementById("iv-avatar");
+      var readout = document.getElementById("iv-q-readout");
+      var label = state.isMainTurn
+        ? ('Question ' + (state.qIdx + 1) + ' of ' + rawQs.length)
+        : ('Follow-up · question ' + (state.qIdx + 1) + ' of ' + rawQs.length);
+      var fullSpoken = (opts.prefix ? (opts.prefix + " ") : "") + text;
+      if (readout) readout.innerHTML = '<small>' + label + '</small>' + escapeHtml(text);
+
+      state.cancelTTS();
+      clearSilenceTimer();
+
+      var nextBtn = document.getElementById("iv-next");
+      if (nextBtn) nextBtn.disabled = true;
+      setTranscriptDisplay("", "", true);
+
+      if (avatar) avatar.classList.add("speaking");
+      state.phase = "speaking";
+      state.aiSpeaking = true;
+      state.currentQuestionText = text;
+
+      function afterSpeak() {
+        if (avatar) avatar.classList.remove("speaking");
+        state.aiSpeaking = false;
+        beginListening();
+      }
+
+      if (hasTTS) {
+        var utter = new SpeechSynthesisUtterance(fullSpoken);
+        var voices = (window.speechSynthesis.getVoices && window.speechSynthesis.getVoices()) || [];
+        var preferred = voices.find(function (v) { return /Google US English|Samantha|Karen|Daniel|Microsoft Aria/.test(v.name); })
+                     || voices.find(function (v) { return /en[-_]?(US|GB)/i.test(v.lang); })
+                     || voices[0];
+        if (preferred) utter.voice = preferred;
+        utter.rate = 0.98;
+        utter.pitch = 1.0;
+        utter.onend = afterSpeak;
+        utter.onerror = afterSpeak;
+        try { window.speechSynthesis.speak(utter); } catch (e) { afterSpeak(); }
+      } else {
+        // No TTS — give the candidate a short read-time. Add length-aware
+        // delay so a longer probe gets a longer pause.
+        var pauseMs = Math.min(2600, 600 + Math.round(text.length * 18));
+        setTimeout(afterSpeak, pauseMs);
+      }
+    }
+
+    function askCurrentQuestion() {
+      state.isMainTurn = true;
+      state.followupCount = 0;
+      state.askedFollowupIds = {};
+      speakAndListen(rawQs[state.qIdx]);
+    }
+
+    /* --- Silence detection ---------------------------------------- */
+
+    function clearSilenceTimer() {
+      if (state.silenceTimer) {
+        clearTimeout(state.silenceTimer);
+        state.silenceTimer = null;
+      }
+    }
+
+    // Schedules an auto-advance based on a quiet mic. Only fires when
+    // we already have a non-empty transcript (so we don't barge in on a
+    // candidate who is still thinking) and when the AI isn't currently
+    // talking. Reset on every new transcript fragment.
+    function scheduleSilenceAdvance() {
+      clearSilenceTimer();
+      if (state.phase !== "listening" || state.aiSpeaking) return;
+      var trimmed = (state.currentTranscript || "").trim();
+      if (trimmed.length < 4) return; // not enough to act on
+      state.silenceTimer = setTimeout(function () {
+        if (state.phase === "listening" && !state.aiSpeaking) {
+          finishCurrentAnswer({ autoAdvanced: true });
+        }
+      }, SILENCE_MS);
+    }
+
+    /* --- Listen + transcribe -------------------------------------- */
+
+    function beginListening() {
+      state.phase = "listening";
+      state.interimTranscript = "";
+      state.currentTranscript = "";
+      var dot = document.getElementById("iv-rec-dot");
+      if (dot) dot.classList.add("live");
+
+      var nextBtn = document.getElementById("iv-next");
+      if (nextBtn) nextBtn.disabled = false;
+
+      if (!SR) {
+        // Fallback path: show the textarea, wire submit on the next button.
+        var ta = document.getElementById("iv-fallback");
+        if (ta) {
+          ta.style.display = "block";
+          ta.value = "";
+          ta.focus();
+        }
+        setTranscriptDisplay("", "", false, "Typing fallback — speech recognition isn't available in this browser.");
+        return;
+      }
+
+      try {
+        var rec = new SR();
+        rec.lang = state.currentLang || "en-US";
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.maxAlternatives = 1;
+        rec.onresult = function (ev) {
+          var interim = "";
+          var finalChunk = "";
+          for (var i = ev.resultIndex; i < ev.results.length; i++) {
+            var res = ev.results[i];
+            if (res.isFinal) finalChunk += res[0].transcript + " ";
+            else interim += res[0].transcript + " ";
+          }
+          if (finalChunk) state.currentTranscript = (state.currentTranscript + " " + finalChunk).replace(/\s+/g, " ").trim();
+          state.interimTranscript = interim.trim();
+          setTranscriptDisplay(state.currentTranscript, state.interimTranscript, false);
+          // Each new fragment resets the silence countdown. Once the
+          // candidate falls quiet for SILENCE_MS, the AI takes its turn
+          // — either with a follow-up probe or by moving to the next
+          // main question. The "Done with answer" button still works as
+          // a manual override for impatient candidates.
+          scheduleSilenceAdvance();
+        };
+        rec.onerror = function (ev) {
+          // Common case: no-speech timeout. Restart silently so the
+          // candidate isn't kicked out by a long thinking pause.
+          if (ev && (ev.error === "no-speech" || ev.error === "audio-capture")) {
+            try { rec.start(); } catch (e) { /* noop */ }
+            return;
+          }
+          // Any other error → fall back to typing UI.
+          state.recognizer = null;
+          var ta = document.getElementById("iv-fallback");
+          if (!ta) {
+            // Inject a textarea on the fly.
+            var transcriptEl = document.getElementById("iv-transcript");
+            if (transcriptEl) {
+              var area = document.createElement("textarea");
+              area.id = "iv-fallback";
+              area.className = "iv-textarea";
+              area.placeholder = "Type your answer here…";
+              transcriptEl.parentNode.insertBefore(area, transcriptEl.nextSibling);
+              area.focus();
+            }
+          } else {
+            ta.style.display = "block";
+            ta.focus();
+          }
+          setTranscriptDisplay(state.currentTranscript, "", false, "Speech recognition stopped — please type the rest of your answer.");
+        };
+        rec.onend = function () {
+          // If we're still in listening phase, the recognizer naturally
+          // ended (Chrome stops after extended silence). Restart it.
+          if (state.phase === "listening" && state.recognizer === rec) {
+            try { rec.start(); } catch (e) { /* noop */ }
+          }
+        };
+        state.recognizer = rec;
+        rec.start();
+      } catch (e) {
+        // Couldn't start STT — drop to fallback typing.
+        var transcriptEl = document.getElementById("iv-transcript");
+        if (transcriptEl) {
+          var area = document.createElement("textarea");
+          area.id = "iv-fallback";
+          area.className = "iv-textarea";
+          area.placeholder = "Type your answer here…";
+          transcriptEl.parentNode.insertBefore(area, transcriptEl.nextSibling);
+          area.focus();
+        }
+        setTranscriptDisplay("", "", false, "Speech recognition couldn't start — type your answer instead.");
+      }
+    }
+
+    function setTranscriptDisplay(finalText, interimText, isPlaceholder, noteOverride) {
+      var el = document.getElementById("iv-transcript");
+      if (!el) return;
+      el.classList.toggle("empty", isPlaceholder);
+      if (noteOverride) {
+        el.textContent = noteOverride;
+        return;
+      }
+      if (isPlaceholder) {
+        el.textContent = SR
+          ? 'Listening will start as soon as the AI finishes the question…'
+          : 'Type your answer below once the AI finishes speaking…';
+        return;
+      }
+      var html = "";
+      if (finalText) html += escapeHtml(finalText);
+      if (interimText) {
+        html += (finalText ? " " : "") + '<span class="interim">' + escapeHtml(interimText) + '</span>';
+      }
+      if (!html) html = '<span class="interim">Listening…</span>';
+      el.innerHTML = html;
+    }
+
+    /* --- Capture a webcam frame for the proctor record ------------ */
+
+    function captureFrameThumb() {
+      try {
+        var video = state.videoEl;
+        if (!video || video.videoWidth === 0) return null;
+        var canvas = document.createElement("canvas");
+        var w = 160, h = Math.round((video.videoHeight / video.videoWidth) * 160);
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        // Mirror so the saved thumbnail matches what the candidate saw.
+        ctx.translate(w, 0); ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, w, h);
+        // Low-quality JPEG to keep the transcript code reasonably small.
+        return canvas.toDataURL("image/jpeg", 0.45);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    /* --- End-of-answer + advance ---------------------------------- */
+
+    function finishCurrentAnswer(opts) {
+      opts = opts || {};
+      var typed = (document.getElementById("iv-fallback") || {}).value;
+      var spoken = (state.currentTranscript || "").trim();
+      var combined = (typed && typed.trim().length > 0 ? typed.trim() : spoken).trim();
+
+      if (!combined) {
+        // Empty answer: on a silence auto-advance we just back off and
+        // keep listening — the candidate is presumably still thinking.
+        // On a manual "Done" click we surface a soft nudge.
+        if (opts.autoAdvanced) {
+          clearSilenceTimer();
+          return;
+        }
+        var el = document.getElementById("iv-transcript");
+        if (el) {
+          el.classList.remove("empty");
+          el.innerHTML = '<span class="interim">We didn\'t catch an answer yet. Speak (or type) something before moving on.</span>';
+        }
+        return;
+      }
+
+      // Record the turn — whether it's the main answer or a follow-up
+      // is captured so the operator can see the interview shape.
+      var qText = state.currentQuestionText || rawQs[state.qIdx];
+      state.answers.push({
+        q: qText,
+        a: combined,
+        ts: new Date().toISOString(),
+        lang: state.currentLang || (navigator.language || "en-US"),
+        frame_thumb: captureFrameThumb() || null,
+        is_followup: !state.isMainTurn,
+        main_q_index: state.qIdx,
+      });
+
+      stopRecognizer();
+
+      // Decide: ask a follow-up, or advance to the next main question.
+      var canFollowUp = state.followupCount < MAX_FOLLOWUPS;
+      var follow = canFollowUp ? pickFollowUp(combined, qText, state.askedFollowupIds) : null;
+
+      if (follow) {
+        state.followupCount += 1;
+        state.askedFollowupIds[follow.id] = true;
+        state.isMainTurn = false;
+        // Reset the per-turn transcript buffer so the next answer doesn't
+        // inherit the previous one's text. Hide any fallback textarea
+        // before the AI speaks.
+        state.currentTranscript = "";
+        state.interimTranscript = "";
+        var ta = document.getElementById("iv-fallback");
+        if (ta) { ta.value = ""; ta.style.display = "none"; }
+        // Speak the acknowledgment + follow-up in one utterance so the
+        // candidate hears a continuous response, not two robotic chunks.
+        var ack = pickAck();
+        setTimeout(function () {
+          speakAndListen(follow.text, { prefix: ack });
+        }, 350);
+        return;
+      }
+
+      // No follow-up (either exhausted, or no rule fired) — advance to
+      // the next main question with a transition phrase to keep the
+      // conversational rhythm.
+      state.qIdx += 1;
+      if (state.qIdx >= rawQs.length) {
+        finishInterview();
+        return;
+      }
+      var taN = document.getElementById("iv-fallback");
+      if (taN) { taN.value = ""; taN.style.display = "none"; }
+      state.currentTranscript = "";
+      state.interimTranscript = "";
+      renderStage();
+      // Speak a transition phrase + immediately roll into the next main
+      // question. We use speakAndListen for the transition so the avatar
+      // animates while it's said, then askCurrentQuestion takes over.
+      var transition = pickTransition();
+      setTimeout(function () {
+        // We can't directly chain two TTS utterances cleanly across
+        // re-renders, so we inline the transition into the next question
+        // as a prefix. From the candidate's ear it sounds like:
+        // "Great, let's move on. Walk me through ..."
+        state.isMainTurn = true;
+        state.followupCount = 0;
+        state.askedFollowupIds = {};
+        speakAndListen(rawQs[state.qIdx], { prefix: transition });
+      }, 500);
+    }
+
+    function stopRecognizer() {
+      try { if (state.recognizer) state.recognizer.stop(); } catch (e) { /* noop */ }
+      state.recognizer = null;
+      clearSilenceTimer();
+      var dot = document.getElementById("iv-rec-dot");
+      if (dot) dot.classList.remove("live");
+    }
+
+    function confirmEndEarly() {
+      var unfinished = rawQs.length - state.qIdx;
+      if (unfinished > 0) {
+        if (!confirm(
+          "End the interview now? You still have " + unfinished + " question" + (unfinished === 1 ? "" : "s") +
+          " left. " + founderName + " will only see what you've answered so far."
+        )) return;
+      }
+      // Push whatever answer is in flight if non-empty, but mark unfinished.
+      var typed = (document.getElementById("iv-fallback") || {}).value;
+      var spoken = (state.currentTranscript || "").trim();
+      var combined = (typed && typed.trim().length > 0 ? typed.trim() : spoken).trim();
+      if (combined) {
+        state.answers.push({
+          q: rawQs[state.qIdx],
+          a: combined,
+          ts: new Date().toISOString(),
+          lang: state.currentLang || (navigator.language || "en-US"),
+          frame_thumb: captureFrameThumb() || null,
+        });
+      }
+      stopRecognizer();
+      finishInterview(true);
+    }
+
+    /* --- End of interview ----------------------------------------- */
+
+    function finishInterview(endedEarly) {
+      state.phase = "finished";
+      stopRecognizer();
+      // Release the camera as soon as we're done so the recording dot in the
+      // OS goes away. Don't wait for unmount.
+      try {
+        if (state.mediaStream) state.mediaStream.getTracks().forEach(function (t) { t.stop(); });
+      } catch (e) { /* noop */ }
+      window.removeEventListener("blur", onBlurDuringInterview);
+      document.removeEventListener("visibilitychange", onVisChange);
+
+      // Build the transcript share-code. We keep the exact `kind` the
+      // operator app already understands ("interview_transcript") plus a
+      // few extra optional fields (lang, proctor_flags, frame thumbs)
+      // that older paste-handlers will simply ignore.
+      var pkg = {
+        v: 2,
+        kind: "interview_transcript",
+        candidate_name: payload.name || "Candidate",
+        public_token: payload.public_token || null,
+        role_title: roleTitle,
+        completed_at: new Date().toISOString(),
+        ended_early: !!endedEarly,
+        answers: state.answers.map(function (a) {
+          return {
+            q: a.q, a: a.a, ts: a.ts,
+            lang: a.lang || null,
+            // Drop the frame thumb from the wire format — it bloats the
+            // transcript code well past clipboard-friendly length. The
+            // browser proctor flag count is the only proctor signal we
+            // ship back; thumbs stay client-only.
+          };
+        }),
+        proctor_flag_count: state.proctorFlags,
+      };
+      var code = b64uEncodeJson(pkg);
+      var bodyForMail =
+        "Hi " + founderName + ",\n\n" +
+        "I just finished the AI video interview from my Hiremind link. " +
+        "Paste this transcript code on my candidate page in the operator app — the AI evaluator will score it automatically:\n\n" +
+        code + "\n\n" +
+        "Thanks,\n" + (payload.name || firstName);
+      var mailto = "mailto:?subject=" +
+        encodeURIComponent("Hiremind interview transcript — " + (payload.name || firstName)) +
+        "&body=" + encodeURIComponent(bodyForMail);
+
+      setRoot(
+        '<div class="brand"><span class="brand-dot"></span><span>Hiremind · Interview</span></div>' +
+        '<h1>That\'s a wrap, ' + escapeHtml(firstName) + ' 👋</h1>' +
+        '<p class="sub">You answered ' + state.answers.length + ' of ' + rawQs.length + ' question' +
+          (rawQs.length === 1 ? '' : 's') + (endedEarly && state.answers.length < rawQs.length ? ' (ended early)' : '') + '. ' +
+          'Your camera and mic have been released.' +
+        '</p>' +
+        '<div class="submit-block">' +
+          '<h3>One last step — send the code to ' + escapeHtml(founderName) + '</h3>' +
+          '<p>Copy the transcript code below and email it (or send it on any channel you already have with them). ' +
+          'They\'ll paste it into the operator app and our AI evaluator will score your answers within seconds — no human bottleneck.</p>' +
+          '<div class="code-block" id="tx-code">' + escapeHtml(code) + '</div>' +
+          '<div style="display:flex; gap:8px; margin-top:10px; flex-wrap: wrap;">' +
+            '<button class="btn-primary" id="copy-code">Copy code</button>' +
+            '<a class="btn-ghost" href="' + mailto + '">Open email draft</a>' +
+          '</div>' +
+          '<div style="font-size:11px; color: var(--muted); margin-top: 8px;">' +
+            'Proctor signals captured: ' + state.proctorFlags + '. ' +
+            'These are minor focus/visibility flags — not a verdict. ' + escapeHtml(founderName) + ' decides what they mean.' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:14px; display:flex; gap:8px;">' +
+          '<button class="btn-ghost" id="back-to-status">Back to status</button>' +
+        '</div>'
+      );
+
+      document.getElementById("back-to-status").addEventListener("click", backToStatus);
+      document.getElementById("copy-code").addEventListener("click", async function () {
+        var btn = this;
+        var codeText = document.getElementById("tx-code").textContent || "";
+        try {
+          await navigator.clipboard.writeText(codeText);
+          btn.textContent = "Copied — paste in your email";
+          setTimeout(function () { btn.textContent = "Copy code"; }, 2400);
+        } catch (e) {
+          var range = document.createRange();
+          range.selectNodeContents(document.getElementById("tx-code"));
+          var sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+        }
+      });
+    }
+
+    function backToStatus() {
+      // Release the camera if still held (back-button path before finishing).
+      try {
+        if (state.mediaStream) state.mediaStream.getTracks().forEach(function (t) { t.stop(); });
+      } catch (e) { /* noop */ }
+      state.cancelTTS();
+      stopRecognizer();
+      window.removeEventListener("blur", onBlurDuringInterview);
+      document.removeEventListener("visibilitychange", onVisChange);
+      var hp = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      hp.delete("view");
+      window.location.hash = hp.toString();
+      renderStatus(payload);
+    }
+
+    renderGate();
+  }
+
+  /* ---------- error ---------- */
+
+  function renderError() {
+    document.getElementById("root").innerHTML =
+      '<div class="brand"><span class="brand-dot"></span><span>Hiremind</span></div>' +
+      '<div class="error">' +
+        '<h1>This link isn\'t complete</h1>' +
+        '<p>It looks like the status link you opened is missing its data. ' +
+        'Ask the founder to re-send their latest email — every email contains a fresh link.</p>' +
+      '</div>';
+  }
+
+  function boot() {
+    var st = readUrlState();
+    if (!st.payload) return renderError();
+    if (st.view === "interview") renderInterview(st.payload);
+    else renderStatus(st.payload);
+  }
+
+  // Voices in Chrome populate after a tick — pre-warm so the first
+  // SpeechSynthesisUtterance grabs a real voice instead of falling back.
+  if ("speechSynthesis" in window) {
+    try { window.speechSynthesis.getVoices(); } catch (e) { /* noop */ }
+    window.speechSynthesis.onvoiceschanged = function () { /* triggers cache */ };
+  }
+
+  window.addEventListener("hashchange", boot);
+  boot();
+</script>
+</body>
+</html>

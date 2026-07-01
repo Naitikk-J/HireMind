@@ -1,0 +1,18 @@
+{
+  "name": "pipe_to_intake",
+  "description": "Thin pipe that turns a raw inbound profile (LinkedIn URL, pasted resume, free-text description) into a kanban candidate + dossier file in one synchronous call. Used by chat surfaces (Telegram, WhatsApp) so the agent only has to make ONE tool call to get a candidate onto the board. Parse + create logic is inlined here (mirrors parse_intake + create_candidate) because function-from-function chaining cold-starts each inner runtime and blows past the 120s API ceiling. triage_and_notify (founder email) is intentionally omitted — it depends on Gmail and is not worth blocking the chat surface on; surface a verdict-style reply after the candidate lands.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "referrers",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] }
+    ]
+  }
+}

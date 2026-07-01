@@ -1,0 +1,14 @@
+{
+  "name": "record_draft",
+  "description": "Persist a drafted outbound message produced by an upstream agent. Writes a row to `messages` with status='awaiting_approval' and returns the real id — this is the side-effecting half of the outreach flow that the LLM agent itself cannot be trusted to do (it tends to hallucinate ids when given a structured schema).",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] }
+    ]
+  }
+}

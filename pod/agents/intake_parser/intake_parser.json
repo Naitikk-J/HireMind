@@ -1,0 +1,29 @@
+{
+  "name": "intake_parser",
+  "description": "Parses a raw intake (voice transcript, LinkedIn URL, paste of profile text) into a structured candidate with a real dossier.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "name":          { "type": "string" },
+      "email":         { "type": ["string", "null"] },
+      "linkedin_url":  { "type": ["string", "null"] },
+      "source":        { "type": "string", "enum": ["linkedin", "referral", "inbound_email", "twitter", "site", "manual"] },
+      "referrer_name": { "type": ["string", "null"] },
+      "role_slug":     { "type": ["string", "null"], "description": "roles.slug if a confident match exists" },
+      "score":         { "type": "number", "description": "0–10 fit score" },
+      "next_action":   { "type": ["string", "null"], "description": "One concrete next step for the founder. Defaults to 'Review dossier' if uncertain — never empty/null." },
+      "dossier_markdown": { "type": "string", "description": "Full dossier body, see instruction for the section template" }
+    },
+    "required": ["name", "source", "score", "next_action", "dossier_markdown"]
+  },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

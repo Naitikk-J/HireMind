@@ -1,0 +1,73 @@
+{
+  "name": "referrer_update",
+  "description": "Triggered when a referred candidate's stage advances. If the referrer is set, draft a short update; gate behind founder approval the first time, auto-send subsequent updates if pre-approved.",
+  "start": {
+    "type": "DATASTORE_EVENT",
+    "config": {
+      "table_name": "candidates",
+      "operations": ["UPDATE"]
+    }
+  },
+  "nodes": [
+    {
+      "id": "has_referrer_route",
+      "type": "DECISION",
+      "label": "Has referrer?",
+      "config": {
+        "rules": [
+          { "condition": "start.payload.referrer_id != null", "next_node_id": "compose_update" }
+        ]
+      }
+    },
+    {
+      "id": "compose_update",
+      "type": "FORM",
+      "label": "Compose update text",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "approved":    { "type": "boolean", "default": true },
+            "update_text": {
+              "type": "string",
+              "default": "Quick update — the candidate you referred is now at stage: <fill in>"
+            }
+          },
+          "required": ["approved", "update_text"]
+        },
+        "ui_schema": { "ui:order": ["update_text", "approved"] }
+      }
+    },
+    {
+      "id": "approval_route",
+      "type": "DECISION",
+      "label": "Approved?",
+      "config": {
+        "rules": [
+          { "condition": "compose_update.approved == `true`", "next_node_id": "notify" }
+        ]
+      }
+    },
+    {
+      "id": "notify",
+      "type": "FUNCTION",
+      "label": "Send referrer update",
+      "config": {
+        "function_name": "notify_referrer",
+        "input_mapping": {
+          "referrer_id":  { "type": "expression", "value": "start.payload.referrer_id" },
+          "message_text": { "type": "expression", "value": "compose_update.update_text" }
+        }
+      }
+    },
+    { "id": "no_referrer", "type": "END", "label": "No referrer attached" },
+    { "id": "skipped",     "type": "END", "label": "Founder skipped this update" },
+    { "id": "done",        "type": "END", "label": "Referrer notified" }
+  ],
+  "edges": [
+    { "id": "e0", "source": "has_referrer_route", "target": "no_referrer", "label": "default — no referrer" },
+    { "id": "e1", "source": "compose_update",     "target": "approval_route" },
+    { "id": "e2", "source": "approval_route",     "target": "skipped", "label": "default — skipped" },
+    { "id": "e3", "source": "notify",             "target": "done" }
+  ]
+}

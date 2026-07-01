@@ -1,0 +1,17 @@
+{
+  "name": "referrers",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "name",         "type": "TEXT", "required": true, "max_length": 200 },
+    { "name": "email",        "type": "TEXT", "max_length": 320 },
+    { "name": "phone",        "type": "TEXT", "max_length": 32,
+      "description": "E.164 format for WhatsApp updates." },
+    { "name": "preferred_channel", "type": "ENUM", "default": "whatsapp",
+      "options": ["whatsapp", "email", "none"] },
+    { "name": "auto_update_approved", "type": "BOOLEAN", "default": false,
+      "description": "Once founder approves first update to this referrer, subsequent updates auto-send." },
+    { "name": "last_update",  "type": "DATETIME" }
+  ],
+  "config": {}
+}

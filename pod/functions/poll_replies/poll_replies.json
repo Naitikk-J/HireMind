@@ -1,0 +1,18 @@
+{
+  "name": "poll_replies",
+  "description": "Scan Gmail for new inbound replies in any thread we've sent outreach on. For each new reply: persist as an inbound message row, advance the candidate's stage (intro_sent → replied), cancel pending follow-up tasks (they replied — no need to nag), and classify the reply intent so the operator knows what to do next. Runs from a 2-min schedule. Idempotent: re-running won't double-record.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "tasks",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "connector", "resource_name": "gmail",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

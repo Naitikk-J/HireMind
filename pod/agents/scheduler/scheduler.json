@@ -1,0 +1,37 @@
+{
+  "name": "scheduler",
+  "description": "Proposes 3 interview slots in the founder's voice OR creates the interview row when the candidate has picked a slot.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "candidate_id": { "type": "string" },
+      "mode": { "type": "string", "enum": ["propose", "confirm"], "default": "propose" },
+      "selected_slot_iso": { "type": ["string", "null"] }
+    },
+    "required": ["candidate_id", "mode"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "message_id":   { "type": ["string", "null"] },
+      "subject":      { "type": ["string", "null"] },
+      "body":         { "type": ["string", "null"] },
+      "interview_id": { "type": ["string", "null"] }
+    },
+    "required": []
+  },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "interviews",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

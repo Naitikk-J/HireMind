@@ -1,0 +1,7 @@
+{
+  "name": "send_digest",
+  "description": "Send a composed digest to the founder via WhatsApp or email when connected; otherwise return a preview ref so the digest still appears in the activity stream.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": { "grants": [] }
+}

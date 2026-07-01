@@ -1,0 +1,16 @@
+{
+  "name": "request_feedback",
+  "description": "Send a short Slack DM (when connected) asking an interviewer to fill the scorecard form, and always write a 'submit_feedback' task assigned to them.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "interviews",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "tasks",
+        "permission_ids": ["datastore.table.read", "datastore.record.write"] }
+    ]
+  }
+}

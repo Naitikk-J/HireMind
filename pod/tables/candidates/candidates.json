@@ -1,0 +1,27 @@
+{
+  "name": "candidates",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "number",        "type": "SERIAL",  "auto": true, "unique": true },
+    { "name": "name",          "type": "TEXT",    "required": true, "max_length": 200 },
+    { "name": "email",         "type": "TEXT",    "max_length": 320 },
+    { "name": "linkedin_url",  "type": "TEXT",    "max_length": 500 },
+    { "name": "source",        "type": "ENUM",    "required": true, "default": "manual",
+      "options": ["linkedin", "referral", "inbound_email", "twitter", "site", "manual"] },
+    { "name": "source_meta",   "type": "JSON" },
+    { "name": "role_id",       "type": "UUID",    "foreign_key": { "references": "roles.id" } },
+    { "name": "stage",         "type": "ENUM",    "required": true, "default": "sourced",
+      "options": ["sourced", "reviewed", "intro_sent", "replied", "screen_done", "onsite_done", "offer", "hired", "closed"] },
+    { "name": "status",        "type": "ENUM",    "required": true, "default": "active",
+      "options": ["active", "passed", "hired", "declined"] },
+    { "name": "owner_user_id", "type": "USER" },
+    { "name": "score",         "type": "FLOAT" },
+    { "name": "next_action",   "type": "TEXT",    "max_length": 500 },
+    { "name": "last_contact",  "type": "DATETIME" },
+    { "name": "public_token",  "type": "TEXT",    "unique": true, "max_length": 64 },
+    { "name": "dossier_path",  "type": "FILE_PATH", "max_length": 500 },
+    { "name": "referrer_id",   "type": "UUID",    "foreign_key": { "references": "referrers.id" } }
+  ],
+  "config": {}
+}

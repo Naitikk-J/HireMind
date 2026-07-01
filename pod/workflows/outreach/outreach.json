@@ -1,0 +1,108 @@
+{
+  "name": "outreach",
+  "description": "Draft → record → approve → send the first-touch outreach to a candidate. The agent only writes the words; a dedicated function persists the draft (LLMs hallucinate ids when forced to produce them). Approval is non-skippable: nothing leaves the pod without the founder's tap.",
+  "start": { "type": "MANUAL" },
+  "nodes": [
+    {
+      "id": "start_form",
+      "type": "FORM",
+      "label": "Which candidate?",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "candidate_id": { "type": "string" },
+            "channel":      { "type": "string", "enum": ["email", "linkedin"], "default": "email" },
+            "intent":       { "type": "string", "enum": ["intro", "screening_request", "offer_letter", "rejection"], "default": "intro",
+                              "description": "intro = cold first-touch; screening_request = ask for materials after a reply; offer_letter = formal offer with comp band; rejection = kind, AI-drafted pass that closes the candidate out on send." }
+          },
+          "required": ["candidate_id"]
+        }
+      }
+    },
+    {
+      "id": "draft",
+      "type": "FUNCTION",
+      "label": "Draft outreach in founder voice (deterministic)",
+      "config": {
+        "function_name": "draft_outreach",
+        "input_mapping": {
+          "candidate_id": { "type": "expression", "value": "start_form.candidate_id" },
+          "channel":      { "type": "expression", "value": "start_form.channel" },
+          "intent":       { "type": "expression", "value": "start_form.intent", "optional": true }
+        }
+      }
+    },
+    {
+      "id": "record_draft",
+      "type": "FUNCTION",
+      "label": "Persist the draft row",
+      "config": {
+        "function_name": "record_draft",
+        "input_mapping": {
+          "candidate_id": { "type": "expression", "value": "start_form.candidate_id" },
+          "subject":      { "type": "expression", "value": "draft.subject" },
+          "body":         { "type": "expression", "value": "draft.body" },
+          "channel":      { "type": "expression", "value": "start_form.channel" },
+          "voice_check":  { "type": "expression", "value": "draft.voice_check", "optional": true },
+          "intent":       { "type": "expression", "value": "draft.intent", "optional": true }
+        }
+      }
+    },
+    {
+      "id": "approve",
+      "type": "FORM",
+      "label": "Approve send",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "approved":   { "type": "boolean" },
+            "edited_subject": {
+              "type": "string",
+              "default": { "type": "expression", "value": "record_draft.subject", "optional": true }
+            },
+            "edited_body": {
+              "type": "string",
+              "default": { "type": "expression", "value": "record_draft.body", "optional": true }
+            },
+            "decline_reason": { "type": "string" }
+          },
+          "required": ["approved"]
+        },
+        "ui_schema": { "ui:order": ["approved", "edited_subject", "edited_body", "decline_reason"] }
+      }
+    },
+    {
+      "id": "approval_route",
+      "type": "DECISION",
+      "label": "Approved?",
+      "config": {
+        "rules": [
+          { "condition": "approve.approved == `true`", "next_node_id": "send" }
+        ]
+      }
+    },
+    {
+      "id": "send",
+      "type": "FUNCTION",
+      "label": "Send via Gmail + advance stage",
+      "config": {
+        "function_name": "send_outreach",
+        "input_mapping": {
+          "message_id": { "type": "expression", "value": "record_draft.message_id" }
+        }
+      }
+    },
+    { "id": "sent",     "type": "END", "label": "Sent" },
+    { "id": "declined", "type": "END", "label": "Declined" }
+  ],
+  "edges": [
+    { "id": "e1", "source": "start_form", "target": "draft" },
+    { "id": "e2", "source": "draft", "target": "record_draft" },
+    { "id": "e3", "source": "record_draft", "target": "approve" },
+    { "id": "e4", "source": "approve", "target": "approval_route" },
+    { "id": "e5", "source": "approval_route", "target": "declined", "label": "not approved (default)" },
+    { "id": "e6", "source": "send", "target": "sent" }
+  ]
+}

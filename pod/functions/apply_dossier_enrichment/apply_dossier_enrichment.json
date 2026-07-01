@@ -1,0 +1,14 @@
+{
+  "name": "apply_dossier_enrichment",
+  "description": "Takes the structured output of the `enrich_dossier` agent and persists it: overwrites the candidate's dossier file with the enriched markdown, updates the candidate row with the refined score + next-action, and writes a short audit note. Idempotent — re-running with the same payload is safe. Never invoked directly by the founder; it's the second half of the `enrich_candidate` workflow.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] }
+    ]
+  }
+}

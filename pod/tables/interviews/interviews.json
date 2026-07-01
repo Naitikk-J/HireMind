@@ -1,0 +1,28 @@
+{
+  "name": "interviews",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "candidate_id",     "type": "UUID", "required": true,
+      "foreign_key": { "references": "candidates.id" } },
+    { "name": "round",            "type": "TEXT", "required": true, "max_length": 80,
+      "description": "intro_call, product_judgment, system_design, founder_chat, etc." },
+    { "name": "interviewer_user_id", "type": "USER" },
+    { "name": "interviewer_email",   "type": "TEXT", "max_length": 320,
+      "description": "Used when interviewer is an external panelist not in the pod." },
+    { "name": "scheduled_at",     "type": "DATETIME" },
+    { "name": "status",           "type": "ENUM", "required": true, "default": "scheduled",
+      "options": ["scheduled", "done", "no_show", "cancelled"] },
+    { "name": "feedback_sent_at", "type": "DATETIME",
+      "description": "When the Slack feedback DM went out (or null)." },
+    { "name": "meet_url",         "type": "TEXT", "max_length": 400,
+      "description": "Google Meet (or other video) URL created when this round was scheduled. Null for in-person rounds." },
+    { "name": "calendar_event_id", "type": "TEXT", "max_length": 200,
+      "description": "External calendar event id (Google Calendar) returned by schedule_screen, so we can update/cancel the event from the pod later." },
+    { "name": "score",            "type": "FLOAT",
+      "description": "AI-evaluated interview score on a 0–100 scale, written by evaluate_interview after the candidate completes an AI video interview. Null for human-led rounds (use the linked scorecards row for those)." },
+    { "name": "eval_path",        "type": "TEXT", "max_length": 400,
+      "description": "Pod-file path to the full evaluation JSON (per-question scores, strengths, concerns, proctor flags, transcript pointer). Written by evaluate_interview alongside the score." }
+  ],
+  "config": {}
+}

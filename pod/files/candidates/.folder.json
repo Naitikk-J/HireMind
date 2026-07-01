@@ -1,0 +1,4 @@
+{
+  "description": "One subfolder per candidate. Holds dossier.md, conversation.md, notes.md, and research/ artifacts.",
+  "visibility": "POD"
+}

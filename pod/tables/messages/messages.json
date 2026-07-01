@@ -1,0 +1,28 @@
+{
+  "name": "messages",
+  "primary_key_column": "id",
+  "enable_rls": false,
+  "columns": [
+    { "name": "candidate_id", "type": "UUID", "required": true,
+      "foreign_key": { "references": "candidates.id" } },
+    { "name": "direction",    "type": "ENUM", "required": true,
+      "options": ["outbound", "inbound"] },
+    { "name": "channel",      "type": "ENUM", "required": true,
+      "options": ["email", "whatsapp", "linkedin", "slack"] },
+    { "name": "subject",      "type": "TEXT", "max_length": 240 },
+    { "name": "body",         "type": "TEXT", "required": true, "max_length": 20000 },
+    { "name": "status",       "type": "ENUM", "required": true, "default": "draft",
+      "options": ["draft", "awaiting_approval", "sent", "failed", "ignored", "received"] },
+    { "name": "created_by",   "type": "TEXT", "max_length": 80,
+      "description": "Agent name (e.g. 'outreach_drafter') or 'human'." },
+    { "name": "approved_by_user_id", "type": "USER" },
+    { "name": "sent_at",      "type": "DATETIME" },
+    { "name": "thread_ref",   "type": "TEXT", "max_length": 240,
+      "description": "External thread id for reply matching (Gmail thread id, etc)." },
+    { "name": "workflow_run_id", "type": "UUID",
+      "description": "Workflow run that produced this message — for tracing." },
+    { "name": "intent",       "type": "TEXT", "max_length": 40,
+      "description": "What this outbound message is for. 'intro' (default), 'screening_request', or 'offer_letter'. Drives stage routing in send_outreach." }
+  ],
+  "config": {}
+}

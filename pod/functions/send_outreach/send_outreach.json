@@ -1,0 +1,18 @@
+{
+  "name": "send_outreach",
+  "description": "Send an approved outbound message (Gmail when connected, preview mode otherwise). Updates the message row, advances the candidate stage, stamps last_contact, and queues a follow-up task. Single coordinated write — keep this in one function.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "tasks",
+        "permission_ids": ["datastore.table.read", "datastore.record.write"] },
+      { "resource_type": "connector", "resource_name": "gmail",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

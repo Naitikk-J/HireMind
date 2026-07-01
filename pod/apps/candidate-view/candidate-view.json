@@ -1,0 +1,5 @@
+{
+  "name": "candidate-view",
+  "description": "Read-only public view candidates can open from their email signature to see where they stand. No login. Token-gated.",
+  "public_slug": "c"
+}

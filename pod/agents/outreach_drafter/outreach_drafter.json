@@ -1,0 +1,36 @@
+{
+  "name": "outreach_drafter",
+  "description": "Drafts a first-touch outreach message in the founder's voice, grounded in the candidate's dossier and the role's pitch. Writes a row to `messages` with status='awaiting_approval' — never sends.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "candidate_id": { "type": "string" },
+      "channel": { "type": "string", "enum": ["email", "linkedin"], "default": "email" }
+    },
+    "required": ["candidate_id"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "subject":     { "type": "string" },
+      "body":        { "type": "string" },
+      "word_count":  { "type": "integer" },
+      "voice_check": { "type": "string", "description": "One-sentence self-critique against the voice file." }
+    },
+    "required": ["subject", "body", "voice_check"]
+  },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read"] }
+    ]
+  }
+}

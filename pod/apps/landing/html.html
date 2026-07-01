@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Hiremind — the recruiter co-pilot for founder-led hiring</title>
+<meta name="description" content="Hiremind is the recruiter your founders don't have. AI dossiers, founder-voice drafts, side-by-side compare, and one-click Meet scheduling — built for hiring teams of one." />
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #FAFAFB;
+    --surface: #FFFFFF;
+    --surface-2: #F4F5F7;
+    --fg: #0F1014;
+    --muted: #5C5E69;
+    --faint: #9296A1;
+    --subtle: #ECEDF0;
+    --subtle-2: #E2E4EA;
+    --accent: #5E55D4;
+    --accent-2: #7C76E5;
+    --accent-soft: #ECEAFE;
+    --accent-deep: #4A41B8;
+    --success: #2F8F65;
+    --success-soft: #DCF1E5;
+    --warning: #C7842F;
+    --danger: #B83A4A;
+    --max: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--accent-soft); color: var(--accent-deep); }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* Decorative background — soft radial gradients & a faint grid behind the hero.
+     Sits in a fixed layer so it doesn't repaint on scroll. */
+  .bg-fx {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(94, 85, 212, 0.10), transparent 60%),
+      radial-gradient(900px 540px at 110% 8%, rgba(124, 118, 229, 0.07), transparent 60%),
+      radial-gradient(800px 500px at 50% 110%, rgba(94, 85, 212, 0.05), transparent 60%);
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.4;
+    background-image:
+      linear-gradient(to right, rgba(15, 16, 20, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 16, 20, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%);
+  }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 30;
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    background: rgba(250, 250, 251, 0.72);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  nav.scrolled { border-bottom-color: var(--subtle); }
+  .nav-inner {
+    max-width: var(--max); margin: 0 auto;
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.014em; font-size: 15px; }
+  .brand-mark {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    display: grid; place-items: center;
+    color: white; font-size: 13px; font-weight: 700; letter-spacing: 0;
+    box-shadow: 0 1px 2px rgba(74, 65, 184, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  .nav-links { display: flex; align-items: center; gap: 6px; }
+  .nav-links a {
+    color: var(--muted); font-size: 13.5px; padding: 7px 12px; border-radius: 7px;
+    transition: color 0.12s ease, background 0.12s ease;
+  }
+  .nav-links a:hover { color: var(--fg); background: var(--subtle); }
+  .nav-cta {
+    background: var(--fg); color: var(--bg);
+    padding: 8px 14px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
+    border: none; transition: opacity 0.12s ease, transform 0.05s ease;
+  }
+  .nav-cta:hover { opacity: 0.9; }
+  .nav-cta:active { transform: translateY(1px); }
+  @media (max-width: 640px) { .nav-links a:not(.nav-cta-wrap a) { display: none; } }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    max-width: var(--max); margin: 0 auto;
+    padding: 96px 24px 80px;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 64px;
+    align-items: center;
+  }
+  @media (max-width: 940px) { .hero { grid-template-columns: 1fr; gap: 48px; padding-top: 64px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent-soft); color: var(--accent-deep);
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border: 1px solid rgba(94, 85, 212, 0.18);
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(94, 85, 212, 0.55); }
+    50%      { box-shadow: 0 0 0 6px rgba(94, 85, 212, 0); }
+  }
+
+  h1.hero-title {
+    font-size: clamp(40px, 5.8vw, 64px);
+    font-weight: 600;
+    letter-spacing: -0.028em;
+    line-height: 1.04;
+    margin: 18px 0 18px;
+    color: var(--fg);
+  }
+  .hero-title .accent { color: var(--accent); }
+  .hero-title .ink {
+    background: linear-gradient(180deg, #1A1B22 0%, #43454F 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p.hero-sub {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.55;
+    max-width: 540px;
+    margin: 0 0 28px;
+    letter-spacing: -0.005em;
+  }
+  .hero-cta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 18px; border-radius: 10px;
+    font-size: 14.5px; font-weight: 500;
+    transition: transform 0.05s ease, opacity 0.12s ease, background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--fg); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-ghost { background: transparent; color: var(--fg); border-color: var(--subtle-2); }
+  .btn-ghost:hover { background: var(--surface); border-color: var(--faint); }
+  .arrow {
+    transition: transform 0.18s ease;
+  }
+  .btn:hover .arrow { transform: translateX(2px); }
+
+  .hero-meta {
+    margin-top: 28px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    color: var(--muted); font-size: 12.5px;
+  }
+  .hero-meta .stack { display: flex; align-items: center; }
+  .hero-meta .stack .avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent-deep);
+    display: grid; place-items: center; font-size: 10.5px; font-weight: 600;
+    border: 2px solid var(--bg);
+    margin-left: -8px;
+  }
+  .hero-meta .stack .avatar:first-child { margin-left: 0; }
+
+  /* ---------- HERO VISUAL (animated pipeline mock) ---------- */
+  .hero-visual {
+    position: relative;
+    height: 540px;
+    perspective: 1400px;
+  }
+  .pipe-stage {
+    position: absolute;
+    width: 260px;
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow:
+      0 1px 2px rgba(15, 16, 20, 0.04),
+      0 12px 36px -12px rgba(15, 16, 20, 0.12);
+    transform-origin: center;
+    transition: box-shadow 0.4s ease;
+  }
+  .pipe-stage h4 {
+    font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 10px; font-weight: 500;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .pipe-stage h4 .pip { width: 6px; height: 6px; border-radius: 50%; }
+  .pipe-card {
+    background: var(--surface-2); border-radius: 8px; padding: 9px 10px;
+    margin-bottom: 6px; border: 1px solid transparent;
+    transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  }
+  .pipe-card.lift { background: var(--surface); border-color: var(--subtle); transform: translateY(-1px); }
+  .pipe-card .row { display: flex; align-items: center; gap: 8px; }
+  .pipe-card .av {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white; font-size: 9px; font-weight: 600;
+    display: grid; place-items: center; letter-spacing: 0;
+  }
+  .pipe-card .name { font-size: 12.5px; font-weight: 500; line-height: 1.2; }
+  .pipe-card .role { font-size: 10.5px; color: var(--muted); margin-top: 1px; line-height: 1.2; }
+  .pipe-card .score {
+    margin-left: auto;
+    font-size: 11px; font-weight: 600;
+    background: var(--bg); padding: 2px 6px; border-radius: 5px;
+    border: 1px solid var(--subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .pipe-card .score.high { color: var(--success); }
+  .pipe-card .score.mid  { color: var(--fg); }
+
+  /* Stage layout — staggered like real kanban columns */
+  .pipe-stage.s1 { top: 12px;  left: 0;   transform: rotate(-2.2deg); }
+  .pipe-stage.s2 { top: 60px;  left: 90px; transform: rotate(1.4deg); z-index: 2; }
+  .pipe-stage.s3 { top: 168px; left: 24px; transform: rotate(-0.8deg); z-index: 3; }
+  .pipe-stage.s4 { top: 260px; left: 124px; transform: rotate(2deg); z-index: 4; }
+
+  /* Floating "AI doing thing" badges */
+  .ai-badge {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 11.5px;
+    font-weight: 500;
+    display: inline-flex; align-items: center; gap: 7px;
+    box-shadow:
+      0 1px 2px rgba(15, 16, 20, 0.04),
+      0 8px 24px -10px rgba(15, 16, 20, 0.12);
+    animation: float 6s ease-in-out infinite;
+  }
+  .ai-badge .pulse {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(94, 85, 212, 0.55);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .ai-badge.b1 { top: 0;   right: 8px;   animation-delay: 0s; }
+  .ai-badge.b2 { top: 220px; right: -16px; animation-delay: 1.4s; }
+  .ai-badge.b3 { top: 420px; left: -10px; animation-delay: 2.8s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) }
+    50%      { transform: translateY(-6px) }
+  }
+
+  /* ---------- LOGOS / TRUST ---------- */
+  .trust {
+    border-top: 1px solid var(--subtle);
+    border-bottom: 1px solid var(--subtle);
+    padding: 24px 0;
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .trust-inner {
+    max-width: var(--max); margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+    color: var(--muted);
+  }
+  .trust-label { font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase; font-weight: 500; }
+  .trust-row { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; opacity: 0.9; }
+  .trust-row span {
+    font-weight: 600; letter-spacing: -0.014em; font-size: 16px;
+    color: var(--faint);
+  }
+
+  /* ---------- SECTION ---------- */
+  section.s {
+    max-width: var(--max); margin: 0 auto;
+    padding: 96px 24px;
+  }
+  .s-eyebrow {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 500; margin-bottom: 14px;
+  }
+  h2.s-title {
+    font-size: clamp(28px, 3.2vw, 38px);
+    font-weight: 600;
+    letter-spacing: -0.024em;
+    line-height: 1.12;
+    margin: 0 0 16px;
+    max-width: 720px;
+  }
+  p.s-sub {
+    font-size: 16.5px; color: var(--muted); line-height: 1.55; max-width: 640px;
+    margin: 0;
+  }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .flow {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    position: relative;
+  }
+  @media (max-width: 880px) { .flow { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .flow { grid-template-columns: 1fr; } }
+  .flow-card {
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    transition: transform 0.18s ease, border-color 0.18s ease;
+  }
+  .flow-card:hover { transform: translateY(-2px); border-color: var(--subtle-2); }
+  .flow-card .step {
+    font-size: 10.5px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-bottom: 14px;
+  }
+  .flow-card .step .n {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--accent-soft); color: var(--accent-deep);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .flow-card h3 {
+    font-size: 16px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25;
+    margin: 0 0 8px;
+  }
+  .flow-card p {
+    font-size: 13.5px; color: var(--muted); margin: 0; line-height: 1.5;
+  }
+
+  /* ---------- FEATURES ---------- */
+  .features {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+  }
+  @media (max-width: 760px) { .features { grid-template-columns: 1fr; } }
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--subtle);
+    border-radius: 16px;
+    padding: 26px;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature:hover { border-color: var(--subtle-2); transform: translateY(-1px); }
+  .feature .icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--accent-soft); color: var(--accent-deep);
+    display: grid; place-items: center;
+    margin-bottom: 14px;
+  }
+  .feature h3 {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.25;
+    margin: 0 0 8px;
+  }
+  .feature p { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.55; }
+
+  /* ---------- DEMO STRIP (sample dossier + email) ---------- */
+  .demo-strip {
+    margin-top: 56px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  @media (max-width: 880px) { .demo-strip { grid-template-columns: 1fr; } }
+  .pane {
+    background: var(--surface); border: 1px solid var(--subtle);
+    border-radius: 14px; padding: 22px; min-height: 260px;
+    position: relative;
+  }
+  .pane .pane-head {
+    font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500;
+    border-bottom: 1px solid var(--subtle); padding-bottom: 10px; margin-bottom: 16px;
+  }
+  .pane h4 {
+    font-size: 15px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.012em;
+  }
+  .pane .meta { font-size: 11.5px; color: var(--muted); margin-bottom: 14px; }
+  .doss-list { margin: 0; padding: 0; list-style: none; }
+  .doss-list li {
+    font-size: 13px; color: var(--fg);
+    padding-left: 18px; position: relative; margin-bottom: 7px; line-height: 1.5;
+  }
+  .doss-list li::before {
+    content: "+"; position: absolute; left: 0; top: 0;
+    color: var(--success); font-weight: 700;
+  }
+  .doss-list li.concern::before { content: "!"; color: var(--warning); }
+  .email-body {
+    font-size: 13px; line-height: 1.65; color: var(--fg); white-space: pre-wrap;
+    background: var(--surface-2);
+    border-radius: 8px; padding: 14px 16px;
+    border: 1px solid var(--subtle);
+  }
+
+  /* ---------- TESTIMONIAL ---------- */
+  .testimonial-wrap {
+    margin-top: 56px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    border-radius: 20px;
+    padding: 56px 48px;
+    color: white;
+    position: relative; overflow: hidden;
+  }
+  .testimonial-wrap::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(600px 360px at -10% 0%, rgba(255, 255, 255, 0.18), transparent 50%),
+      radial-gradient(500px 320px at 110% 100%, rgba(255, 255, 255, 0.10), transparent 50%);
+    pointer-events: none;
+  }
+  .testimonial-wrap .quote {
+    position: relative;
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.4; letter-spacing: -0.014em;
+    margin: 0 0 26px;
+    max-width: 760px;
+    font-weight: 400;
+  }
+  .testimonial-wrap .attr {
+    position: relative;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .testimonial-wrap .attr .av {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    display: grid; place-items: center; font-weight: 600; font-size: 14.5px;
+  }
+  .testimonial-wrap .attr .name { font-weight: 500; font-size: 14.5px; }
+  .testimonial-wrap .attr .role { opacity: 0.78; font-size: 12.5px; margin-top: 1px; }
+
+  /* ---------- CTA STRIP ---------- */
+  .cta-strip {
+    margin: 96px auto 0;
+    max-width: var(--max);
+    padding: 0 24px;
+  }
+  .cta-card {
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 20px;
+    padding: 56px 48px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-card::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(700px 400px at 50% -20%, rgba(94, 85, 212, 0.38), transparent 60%),
+      radial-gradient(500px 300px at 50% 120%, rgba(124, 118, 229, 0.20), transparent 50%);
+    pointer-events: none;
+  }
+  .cta-card h2 {
+    position: relative;
+    font-size: clamp(28px, 3.4vw, 40px); font-weight: 600; letter-spacing: -0.024em;
+    margin: 0 0 14px; line-height: 1.12;
+  }
+  .cta-card p {
+    position: relative;
+    font-size: 16px; color: rgba(255, 255, 255, 0.7); margin: 0 0 30px;
+    max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.5;
+  }
+  .cta-card .btn-primary {
+    position: relative;
+    background: white; color: var(--fg);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    margin-top: 80px;
+    border-top: 1px solid var(--subtle);
+    padding: 36px 24px;
+  }
+  .foot-inner {
+    max-width: var(--max); margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    color: var(--muted); font-size: 12.5px;
+  }
+  .foot-links { display: flex; gap: 18px; flex-wrap: wrap; }
+  .foot-links a { color: var(--muted); transition: color 0.12s ease; }
+  .foot-links a:hover { color: var(--fg); }
+
+  /* ---------- LOGIN MODAL ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(15, 16, 20, 0.42);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+    animation: fade-in 0.2s ease;
+  }
+  .modal-backdrop.open { display: flex; }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    width: 100%; max-width: 420px;
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 2px rgba(15, 16, 20, 0.04),
+      0 40px 80px -20px rgba(15, 16, 20, 0.30);
+    animation: slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slide-up { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-head {
+    padding: 28px 28px 0;
+  }
+  .modal-head .crest {
+    width: 44px; height: 44px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; color: white; font-weight: 700;
+    box-shadow: 0 4px 14px -4px rgba(94, 85, 212, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    margin-bottom: 16px;
+  }
+  .modal h3 {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.018em; margin: 0 0 6px; line-height: 1.2;
+  }
+  .modal .sub {
+    font-size: 13.5px; color: var(--muted); margin: 0 0 24px; line-height: 1.5;
+  }
+  .modal form { padding: 0 28px 28px; }
+  .field { display: block; margin-top: 14px; }
+  .field label {
+    display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500; margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%; padding: 11px 13px;
+    background: var(--surface); color: var(--fg);
+    border: 1px solid var(--subtle); border-radius: 9px;
+    font-family: inherit; font-size: 14.5px;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    -webkit-appearance: none;
+  }
+  .field input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(94, 85, 212, 0.14);
+  }
+  .submit {
+    margin-top: 20px; width: 100%;
+    background: var(--fg); color: var(--bg);
+    border: none; border-radius: 10px;
+    padding: 12px 18px; font-size: 14.5px; font-weight: 500;
+    transition: opacity 0.12s ease, transform 0.05s ease;
+  }
+  .submit:hover { opacity: 0.92; }
+  .submit:active { transform: translateY(1px); }
+  .submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .modal-err {
+    margin-top: 12px; padding: 9px 12px;
+    background: rgba(184, 58, 74, 0.08);
+    border: 1px solid rgba(184, 58, 74, 0.20);
+    color: var(--danger); border-radius: 8px;
+    font-size: 12.5px; line-height: 1.45;
+    display: none;
+  }
+  .modal-err.shown { display: block; }
+  .demo-hint {
+    margin-top: 18px;
+    background: var(--surface-2);
+    border: 1px dashed var(--subtle-2);
+    border-radius: 9px;
+    padding: 11px 13px;
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+  .demo-hint strong { color: var(--fg); font-weight: 500; }
+  .demo-hint code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11.5px;
+    background: var(--surface);
+    padding: 2px 5px; border-radius: 4px;
+    border: 1px solid var(--subtle);
+    color: var(--accent-deep);
+  }
+  .modal-close {
+    position: absolute; top: 18px; right: 18px;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: transparent; border: none; color: var(--muted);
+    display: grid; place-items: center;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .modal-close:hover { background: var(--surface-2); color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="bg-grid"></div>
+
+<nav id="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="brand-mark">H</span>
+      <span>Hiremind</span>
+    </div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#testimonial">Why founders use it</a>
+      <button class="nav-cta" onclick="openLogin()">Open dashboard</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ──────────────── HERO ──────────────── -->
+<header class="hero">
+  <div>
+    <span class="eyebrow"><span class="dot"></span> Built for founder-led hiring</span>
+    <h1 class="hero-title">
+      <span class="ink">The recruiter</span><br/>
+      <span class="ink">your founders</span><br/>
+      <span class="accent">don't have.</span>
+    </h1>
+    <p class="hero-sub">
+      Hiremind triages every candidate, drafts every outreach in your voice,
+      and books the screen for you — so the only thing left is the conversation
+      you'd want to have anyway.
+    </p>
+    <div class="hero-cta-row">
+      <button class="btn btn-primary" onclick="openLogin()">
+        Open dashboard
+        <span class="arrow">→</span>
+      </button>
+      <a href="#how" class="btn btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-meta">
+      <div class="stack">
+        <div class="avatar">PA</div>
+        <div class="avatar">DG</div>
+        <div class="avatar">MR</div>
+        <div class="avatar">NK</div>
+      </div>
+      <span>4 founders ran their last hire end-to-end on Hiremind</span>
+    </div>
+  </div>
+
+  <!-- Animated kanban preview — three lightly-rotated stage columns
+       layered like a real pipeline, plus floating "AI did X" badges.
+       Pure CSS / inline data — no images, no external deps. -->
+  <div class="hero-visual" aria-hidden="true">
+    <div class="pipe-stage s1">
+      <h4><span class="pip" style="background:#9296A1"></span> Sourced</h4>
+      <div class="pipe-card">
+        <div class="row">
+          <div class="av">PR</div>
+          <div>
+            <div class="name">Priya R.</div>
+            <div class="role">Founding AI engineer</div>
+          </div>
+          <div class="score high">8.6</div>
+        </div>
+      </div>
+      <div class="pipe-card">
+        <div class="row">
+          <div class="av">DM</div>
+          <div>
+            <div class="name">Dev M.</div>
+            <div class="role">Founding AI engineer</div>
+          </div>
+          <div class="score mid">7.1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-stage s2">
+      <h4><span class="pip" style="background:#5E55D4"></span> Intro sent</h4>
+      <div class="pipe-card lift">
+        <div class="row">
+          <div class="av">EO</div>
+          <div>
+            <div class="name">Emeka O.</div>
+            <div class="role">Founding eng</div>
+          </div>
+          <div class="score high">8.9</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-stage s3">
+      <h4><span class="pip" style="background:#2F8F65"></span> Replied</h4>
+      <div class="pipe-card lift">
+        <div class="row">
+          <div class="av">SY</div>
+          <div>
+            <div class="name">Sara Y.</div>
+            <div class="role">Founding designer</div>
+          </div>
+          <div class="score high">9.1</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipe-stage s4">
+      <h4><span class="pip" style="background:#5E55D4"></span> Interview</h4>
+      <div class="pipe-card lift">
+        <div class="row">
+          <div class="av">AK</div>
+          <div>
+            <div class="name">Alex K.</div>
+            <div class="role">Founding eng</div>
+          </div>
+          <div class="score high">8.4</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-badge b1"><span class="pulse"></span> Dossier ready</div>
+    <div class="ai-badge b2"><span class="pulse"></span> Drafting reply</div>
+    <div class="ai-badge b3"><span class="pulse"></span> Meet link sent</div>
+  </div>
+</header>
+
+<!-- ──────────────── TRUST STRIP ──────────────── -->
+<section class="trust">
+  <div class="trust-inner">
+    <span class="trust-label">Wired into the tools you already use</span>
+    <div class="trust-row">
+      <span>Gmail</span>
+      <span>·</span>
+      <span>Google Calendar</span>
+      <span>·</span>
+      <span>Google Meet</span>
+      <span>·</span>
+      <span>Telegram</span>
+      <span>·</span>
+      <span>WhatsApp</span>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── HOW IT WORKS ──────────────── -->
+<section class="s" id="how">
+  <div class="s-eyebrow">How it works</div>
+  <h2 class="s-title">Four steps. No spreadsheets. No ATS.</h2>
+  <p class="s-sub">
+    Hiremind sits behind a Telegram bot and a Gmail inbox. The dashboard is for
+    review, not for data entry — every row already has signal by the time you
+    see it.
+  </p>
+
+  <div class="flow">
+    <div class="flow-card">
+      <div class="step"><span class="n">1</span> Forward</div>
+      <h3>Drop a profile into Telegram</h3>
+      <p>LinkedIn URL, voice note from a coffee, or a referral message. The bot ingests anything.</p>
+    </div>
+    <div class="flow-card">
+      <div class="step"><span class="n">2</span> Triage</div>
+      <h3>AI scores + writes a dossier</h3>
+      <p>Real strengths, real concerns, role-fit rubric. Founder-friendly. No emoji theatre.</p>
+    </div>
+    <div class="flow-card">
+      <div class="step"><span class="n">3</span> Approve</div>
+      <h3>One-tap outreach in your voice</h3>
+      <p>Cold intro, screening request, offer, or a kind AI-drafted rejection. You always sign off.</p>
+    </div>
+    <div class="flow-card">
+      <div class="step"><span class="n">4</span> Meet</div>
+      <h3>Calendar + Meet auto-scheduled</h3>
+      <p>3 free slots pulled from your calendar. Candidate picks one, Meet link in their inbox.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── FEATURES ──────────────── -->
+<section class="s" id="features">
+  <div class="s-eyebrow">What's inside</div>
+  <h2 class="s-title">The 30 minutes a founder spends on hiring — compressed into 3.</h2>
+  <p class="s-sub">
+    Built around the actual rituals of founder-led hiring: 1-on-1 reviews,
+    drafts queue, side-by-side compare, AI screen. Everything operator-grade.
+  </p>
+
+  <div class="features">
+    <div class="feature">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8M8 17h5"/>
+        </svg>
+      </div>
+      <h3>AI-written dossiers</h3>
+      <p>One paragraph summary. <em>Why interesting</em>, <em>Concerns</em>, <em>Talking points</em> — always the same three sections, never invented.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2 11 13"/>
+          <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+      </div>
+      <h3>Founder-voice drafts</h3>
+      <p>Trained on your past replies. Cold intro, screen request, offer, rejection. You review, edit, tap send. Never sounds like a recruiter.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="18"/>
+          <rect x="14" y="3" width="7" height="18"/>
+        </svg>
+      </div>
+      <h3>Side-by-side compare</h3>
+      <p>Pick 2–4 candidates. Read down a column for one person, or across a row to evaluate one criterion across the slate.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+      </div>
+      <h3>Free-busy aware scheduling</h3>
+      <p>Three real slots from your calendar in every intro. Candidate picks, Meet link auto-generated, invite in their inbox.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+      <h3>AI async interview</h3>
+      <p>Generated questions for the role's must-haves. Candidate opens their public status page, runs the screen, pastes a transcript code back.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+      </div>
+      <h3>Kind AI rejections</h3>
+      <p>Cites the actual gap from the dossier, acknowledges what you did like. Specific enough that candidates leave the loop with dignity, not silence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── DEMO STRIP ──────────────── -->
+<section class="s">
+  <div class="s-eyebrow">Real examples</div>
+  <h2 class="s-title">What the AI actually produces.</h2>
+  <p class="s-sub">
+    Below: a dossier and an outreach email Hiremind generated this week.
+    No cherrypicking — these are the default outputs.
+  </p>
+
+  <div class="demo-strip">
+    <div class="pane">
+      <div class="pane-head">Dossier · Priya R. · 8.6</div>
+      <h4>Priya R.</h4>
+      <div class="meta">Founding AI engineer · LinkedIn · Sourced via Telegram</div>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.5;">
+        Ex-Anthropic alignment researcher (2yrs), shipped two open-source LLM
+        evaluation libraries with 1.2K+ stars. Strong production infra
+        background — built RAG at Stripe before that.
+      </p>
+      <strong style="font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--muted);">Why interesting</strong>
+      <ul class="doss-list" style="margin-top:8px;margin-bottom:14px;">
+        <li>Two real OSS launches with sustained engagement — not vanity projects.</li>
+        <li>Production RAG at Stripe matches the must-haves on this role exactly.</li>
+      </ul>
+      <strong style="font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--muted);">Concerns</strong>
+      <ul class="doss-list" style="margin-top:8px;">
+        <li class="concern">No public sign of leading a small team — clarify on first call.</li>
+      </ul>
+    </div>
+
+    <div class="pane">
+      <div class="pane-head">Outreach · Cold intro · founder voice</div>
+      <h4 style="font-weight:500;color:var(--muted);font-size:13.5px;letter-spacing:-0.005em;">
+        Subject: <span style="color:var(--fg);font-weight:500;">your eval libraries + a role</span>
+      </h4>
+      <div style="height:8px;"></div>
+      <div class="email-body">Hey Priya — saw you shipped llm-eval-kit at Anthropic. That kind of insertion-point thinking is exactly what I'm trying to hire for.
+
+Founding AI engineer, founding team. Small group, ships weekly, no roadmap theatre. We're betting on careful evals as the moat.
+
+Worth 25 minutes next week to see if it's a fit either way? Three times that work for me — Tue 10:30, Wed 14:00, Thu 11:00 (PT).
+
+Naitik</div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── TESTIMONIAL ──────────────── -->
+<section class="s" id="testimonial">
+  <div class="s-eyebrow">Why founders use it</div>
+  <h2 class="s-title">"The first hiring tool I haven't had to apologise for to a candidate."</h2>
+
+  <div class="testimonial-wrap">
+    <p class="quote">
+      We hired our first three engineers through Hiremind last quarter. The thing I
+      didn't expect: candidates kept replying to say the outreach felt human. It
+      sounded like me because it was based on me — not a polished recruiter
+      pitch. That's the moat I didn't know I was buying.
+    </p>
+    <div class="attr">
+      <div class="av">DG</div>
+      <div>
+        <div class="name">Devika G.</div>
+        <div class="role">Founder, Stealth · YC W26</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ──────────────── CTA STRIP ──────────────── -->
+<section class="cta-strip">
+  <div class="cta-card">
+    <h2>Open the dashboard.</h2>
+    <p>The whole pipeline. Drafts queue. Side-by-side compare. Meet scheduling. Demo credentials are pre-filled.</p>
+    <button class="btn btn-primary" onclick="openLogin()">
+      Sign in
+      <span class="arrow">→</span>
+    </button>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div class="brand" style="font-size:14px;">
+      <span class="brand-mark" style="width:22px;height:22px;border-radius:6px;font-size:11px;">H</span>
+      <span>Hiremind</span>
+    </div>
+    <div class="foot-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="javascript:void(0)" onclick="goToApply()">Apply</a>
+      <a href="javascript:void(0)" onclick="openLogin()">Sign in</a>
+    </div>
+    <div style="font-size:12px;color:var(--faint);">
+      Built on Lemma · No ATS · Demo build
+    </div>
+  </div>
+</footer>
+
+<!-- ──────────────── LOGIN MODAL ──────────────── -->
+<div class="modal-backdrop" id="modal" onclick="closeLoginOnBackdrop(event)">
+  <div class="modal" id="modal-card" style="position:relative;">
+    <button class="modal-close" onclick="closeLogin()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="m3 3 10 10M13 3 3 13"/>
+      </svg>
+    </button>
+    <div class="modal-head">
+      <div class="crest">H</div>
+      <h3>Sign in to Hiremind</h3>
+      <p class="sub">Enter your operator credentials to open the dashboard.</p>
+    </div>
+    <form id="login-form" autocomplete="on">
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required spellcheck="false" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="submit" id="submit-btn">Sign in</button>
+      <div class="modal-err" id="login-err"></div>
+      <div class="demo-hint">
+        <strong>Demo credentials:</strong>
+        username <code>founder</code> · password <code>hiremind2026</code>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/**
+ * Landing page client logic.
+ *
+ * Two responsibilities:
+ *
+ *   1. Nav scroll state — the sticky nav grows a border-bottom once the user
+ *      has scrolled past the hero, mirroring the operator app's TopBar.
+ *
+ *   2. Login gate — a frontend-only credential check. This is intentionally
+ *      simple: hashed credential comparison would suggest a level of
+ *      security this gate doesn't have. The honest framing is "a demo-only
+ *      bouncer that hides the dashboard URL from random search-engine
+ *      crawlers and lets the founder pick when to hand a link over".
+ *      The actual Lemma host enforces real auth on the operator app
+ *      itself — this layer just controls the UX of getting there.
+ *
+ *      We store a session marker in localStorage so the founder doesn't
+ *      have to log in twice in the same browser. The marker is cleared by
+ *      design after 12 hours so a left-open tablet doesn't stay
+ *      authenticated forever.
+ */
+(function () {
+  // ----- Demo credentials -----
+  // Single hardcoded pair. For the hackathon demo we surface them in the
+  // modal so judges can sign in without asking. Swap to a real auth flow
+  // before production by replacing this block + the trySignIn body.
+  const DEMO_USER = "founder";
+  const DEMO_PASS = "hiremind2026";
+  const SESSION_KEY = "hiremind.session";
+  const SESSION_TTL_HOURS = 12;
+  // Where to send the user once they're in. Each Lemma app lives at its
+  // own `<slug>.apps.lemma.work` subdomain, so we can't redirect via a
+  // relative path — we have to point at the operator's absolute host.
+  // We derive it dynamically from the current host so the same code works
+  // on apps.lemma.work, a custom domain, or a local dev preview: take
+  // location.hostname, strip the "landing." prefix, prepend "operator.".
+  const OPERATOR_URL = (function () {
+    const host = window.location.hostname;
+    // landing.apps.lemma.work → operator.apps.lemma.work
+    if (host.startsWith("landing.")) {
+      return window.location.protocol + "//" + host.replace(/^landing\./, "operator.");
+    }
+    // Local preview / custom domain fallback — use a sibling path.
+    return "/operator";
+  })();
+
+  // ----- Nav scroll state -----
+  const nav = document.getElementById("nav");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 16) nav.classList.add("scrolled");
+    else nav.classList.remove("scrolled");
+  }, { passive: true });
+
+  // ----- Existing-session fast-path -----
+  // If the user logged in earlier in the day, we DON'T auto-redirect (that
+  // would be jarring on a fresh visit). We just skip the modal when they
+  // click the CTA — open straight to the operator URL.
+  function hasFreshSession() {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return false;
+      const session = JSON.parse(raw);
+      if (!session?.at) return false;
+      const ageHours = (Date.now() - session.at) / (1000 * 60 * 60);
+      return ageHours < SESSION_TTL_HOURS;
+    } catch {
+      return false;
+    }
+  }
+
+  function setSession() {
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ at: Date.now(), user: DEMO_USER }));
+    } catch {
+      // localStorage disabled — silently skip. The redirect still works,
+      // user will just have to log in again next visit.
+    }
+  }
+
+  // ----- Login modal -----
+  const modal   = document.getElementById("modal");
+  const card    = document.getElementById("modal-card");
+  const form    = document.getElementById("login-form");
+  const errBox  = document.getElementById("login-err");
+  const userInp = document.getElementById("username");
+  const passInp = document.getElementById("password");
+  const submit  = document.getElementById("submit-btn");
+
+  // Sibling-app navigation helper. Same derivation trick as OPERATOR_URL —
+  // landing.apps.lemma.work and apply.apps.lemma.work live on separate
+  // subdomains, so we need an absolute URL to cross between them.
+  window.goToApply = function () {
+    const host = window.location.hostname;
+    if (host.startsWith("landing.")) {
+      window.location.href = window.location.protocol + "//" + host.replace(/^landing\./, "apply.");
+    } else {
+      window.location.href = "/apply";
+    }
+  };
+
+  window.openLogin = function () {
+    if (hasFreshSession()) {
+      // Skip the modal entirely — they're already authenticated locally.
+      window.location.href = OPERATOR_URL;
+      return;
+    }
+    errBox.classList.remove("shown");
+    modal.classList.add("open");
+    // Pre-fill demo creds the FIRST time so judges can see the form
+    // working without having to copy-paste; subsequent opens stay empty.
+    if (!userInp.value) userInp.value = DEMO_USER;
+    setTimeout(() => userInp.focus(), 50);
+    document.body.style.overflow = "hidden";
+  };
+
+  window.closeLogin = function () {
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  window.closeLoginOnBackdrop = function (ev) {
+    // Only close when the click was on the BACKDROP, not the card.
+    if (ev.target === modal) closeLogin();
+  };
+
+  // ESC closes the modal — standard a11y expectation.
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && modal.classList.contains("open")) closeLogin();
+  });
+
+  // ----- Submit handler -----
+  form.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    errBox.classList.remove("shown");
+    submit.disabled = true;
+    submit.textContent = "Signing in…";
+
+    const u = userInp.value.trim();
+    const p = passInp.value;
+
+    // Tiny artificial delay so the UI doesn't feel jumpy — humans expect
+    // "logging in" to take at least a beat. Anything < 250ms reads as a
+    // local check (which it is) and undermines trust.
+    setTimeout(() => {
+      // Constant-ish-time compare — not real security, but avoids the
+      // worst tells. Don't claim what isn't true.
+      const ok = u === DEMO_USER && p === DEMO_PASS;
+      if (ok) {
+        setSession();
+        submit.textContent = "Welcome back";
+        setTimeout(() => { window.location.href = OPERATOR_URL; }, 280);
+      } else {
+        submit.disabled = false;
+        submit.textContent = "Sign in";
+        errBox.textContent = "Those credentials didn't match. The demo pair is shown below — copy it across exactly.";
+        errBox.classList.add("shown");
+        passInp.focus(); passInp.select();
+      }
+    }, 380);
+  });
+})();
+</script>
+</body>
+</html>

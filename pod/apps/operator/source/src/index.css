@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  html { color-scheme: dark; }
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    font-feature-settings: "ss01", "cv11", "cv02", "ss03";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+  ::selection {
+    background: rgba(124, 112, 255, 0.32);
+    color: #FFFFFF;
+  }
+  button { font-family: inherit; }
+  a { color: inherit; text-decoration: none; }
+  input, textarea { font-feature-settings: "ss01", "cv11"; }
+  kbd {
+    font-family: "Berkeley Mono", "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    padding: 1.5px 5px;
+    border-radius: 4px;
+    background: #1A1B20;
+    border: 1px solid #2E303A;
+    color: #A6A7AE;
+    line-height: 1;
+  }
+}
+
+@layer components {
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:shadow-focus focus-visible:rounded-md;
+  }
+  .label {
+    @apply text-2xs uppercase tracking-widest text-faint font-medium;
+  }
+  .eyebrow {
+    @apply text-2xs uppercase tracking-widest text-faint font-medium;
+  }
+  .hairline {
+    @apply border-border;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum", "ss01";
+  }
+
+  /* Custom scrollbars — Linear-thin */
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #2E303A transparent; }
+  .scrollbar-thin::-webkit-scrollbar { width: 9px; height: 9px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #2E303A;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #3A3C45;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+
+  /* Subtle grain — barely visible, keeps it from looking like a flat png */
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+    opacity: 0.045;
+    mix-blend-mode: screen;
+    z-index: 1;
+  }
+
+  /* Faint colored wash anchored to top-left — pulls the eye up */
+  .top-wash {
+    background-image:
+      radial-gradient(900px 520px at -10% -20%, rgba(124, 112, 255, 0.10), transparent 60%),
+      radial-gradient(700px 480px at 110% 120%, rgba(96, 165, 250, 0.05), transparent 60%);
+  }
+
+  .chip-inset { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07); }
+
+  /* Linear-style list row */
+  .row-h {
+    @apply h-9 px-3 flex items-center gap-3 border-b border-border;
+    @apply hover:bg-surface2 cursor-pointer;
+    @apply transition-colors duration-100 ease-soft;
+  }
+
+  /* The signature linear cmd-k bordered button */
+  .kbd-pair {
+    @apply inline-flex items-center gap-1 text-2xs text-muted font-medium;
+  }
+
+  /* Skeleton */
+  .skel {
+    background-image: linear-gradient(90deg, #16171B 0%, #1D1E23 30%, #16171B 60%);
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded-sm;
+  }
+
+  /* Dossier prose */
+  .prose-dark {
+    @apply text-fg/90 leading-[1.7] text-sm;
+  }
+  .prose-dark h1 { @apply text-lg font-semibold text-fg mt-1 mb-3 tracking-tight; }
+  .prose-dark h2 { @apply text-md font-semibold text-fg mt-6 mb-2 tracking-tight; }
+  .prose-dark h3 { @apply text-sm font-semibold text-fg mt-5 mb-1.5 tracking-tight; }
+  .prose-dark strong { @apply text-fg font-medium; }
+  .prose-dark em { @apply text-muted not-italic; }
+  .prose-dark ul { @apply my-2 space-y-1.5; }
+  .prose-dark ul li { @apply pl-4 relative text-fg/85; }
+  .prose-dark ul li::before {
+    content: "";
+    position: absolute; left: 4px; top: 9px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #7C70FF;
+  }
+  .prose-dark a { @apply text-accent-2 underline underline-offset-4 decoration-accent/30; }
+  .prose-dark code {
+    @apply font-mono text-xs bg-subtle px-1.5 py-0.5 rounded text-fg/85;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+  .mask-fade-r {
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  }
+}

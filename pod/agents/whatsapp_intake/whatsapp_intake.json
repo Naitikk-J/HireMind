@@ -1,0 +1,34 @@
+{
+  "name": "whatsapp_intake",
+  "description": "Default agent for the WhatsApp surface. The founder forwards a LinkedIn URL, pasted resume text, or a raw description of a candidate to the Lemma-managed WhatsApp number; this agent triages it. It runs the deterministic intake parser, decides whether the candidate clears the bar against an open role, creates the candidate record + dossier when it does, and replies to the founder with a one-line verdict so they get an immediate signal without opening the operator app. Never escalates to the operator silently — the WhatsApp reply IS the audit trail for what it did.",
+  "instruction": { "$file": "instruction.md" },
+  "toolsets": ["POD"],
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": [
+          "datastore.table.read",
+          "datastore.record.read",
+          "datastore.record.write"
+        ] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] },
+      { "resource_type": "folder", "resource_name": "/knowledge",
+        "permission_ids": ["folder.read"] },
+      { "resource_type": "function", "resource_name": "parse_intake",
+        "permission_ids": ["function.read", "function.execute"] },
+      { "resource_type": "function", "resource_name": "create_candidate",
+        "permission_ids": ["function.read", "function.execute"] },
+      { "resource_type": "function", "resource_name": "triage_and_notify",
+        "permission_ids": ["function.read", "function.execute"] }
+    ]
+  }
+}

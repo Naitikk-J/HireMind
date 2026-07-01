@@ -1,0 +1,5 @@
+{
+  "name": "apply",
+  "description": "Public job-application form. No login. Reads ?role=<slug> from the URL to pre-fill the role; submits via the submit_application function. Falls back to a mailto: draft if the public function endpoint isn't reachable.",
+  "public_slug": "apply"
+}

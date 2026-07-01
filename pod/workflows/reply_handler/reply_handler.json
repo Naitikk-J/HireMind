@@ -1,0 +1,164 @@
+{
+  "name": "reply_handler",
+  "description": "Triggered when a new inbound message lands. Classifies the reply, branches to scheduler/notify/close.",
+  "start": {
+    "type": "DATASTORE_EVENT",
+    "config": {
+      "table_name": "messages",
+      "operations": ["INSERT"]
+    }
+  },
+  "nodes": [
+    {
+      "id": "direction_route",
+      "type": "DECISION",
+      "label": "Inbound?",
+      "config": {
+        "rules": [
+          { "condition": "start.payload.direction == 'inbound'", "next_node_id": "classify" }
+        ]
+      }
+    },
+    {
+      "id": "classify",
+      "type": "AGENT",
+      "label": "Classify intent",
+      "config": {
+        "agent_name": "reply_classifier",
+        "input_mapping": {
+          "message_id": { "type": "expression", "value": "start.metadata.record_id" },
+          "body":       { "type": "expression", "value": "start.payload.body" }
+        }
+      }
+    },
+    {
+      "id": "intent_route",
+      "type": "DECISION",
+      "label": "Branch on intent",
+      "config": {
+        "rules": [
+          { "condition": "classify.intent == 'interest' && classify.confidence >= `0.7`",
+            "next_node_id": "propose_slots" },
+          { "condition": "classify.intent == 'slot_selection' && classify.confidence >= `0.7`",
+            "next_node_id": "confirm_slot" }
+        ]
+      }
+    },
+    {
+      "id": "propose_slots",
+      "type": "AGENT",
+      "label": "Draft 3 slots in founder voice",
+      "config": {
+        "agent_name": "scheduler",
+        "input_mapping": {
+          "candidate_id": { "type": "expression", "value": "start.payload.candidate_id" },
+          "mode":         { "type": "literal",    "value": "propose" }
+        }
+      }
+    },
+    {
+      "id": "approve_slots",
+      "type": "FORM",
+      "label": "Approve slot proposal",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "approved":      { "type": "boolean" },
+            "edited_body":   { "type": "string",
+              "default": { "type": "expression", "value": "propose_slots.body", "optional": true } },
+            "decline_reason":{ "type": "string" }
+          },
+          "required": ["approved"]
+        }
+      }
+    },
+    {
+      "id": "approve_slots_route",
+      "type": "DECISION",
+      "label": "Approved?",
+      "config": {
+        "rules": [
+          { "condition": "approve_slots.approved == `true`", "next_node_id": "send_slots" }
+        ]
+      }
+    },
+    {
+      "id": "send_slots",
+      "type": "FUNCTION",
+      "label": "Send slot proposal",
+      "config": {
+        "function_name": "send_outreach",
+        "input_mapping": {
+          "message_id": { "type": "expression", "value": "propose_slots.message_id" }
+        }
+      }
+    },
+    {
+      "id": "confirm_slot",
+      "type": "AGENT",
+      "label": "Create interview + draft confirmation",
+      "config": {
+        "agent_name": "scheduler",
+        "input_mapping": {
+          "candidate_id":      { "type": "expression", "value": "start.payload.candidate_id" },
+          "mode":              { "type": "literal",    "value": "confirm" },
+          "selected_slot_iso": { "type": "expression", "value": "classify.extracted_slot", "optional": true }
+        }
+      }
+    },
+    {
+      "id": "approve_confirm",
+      "type": "FORM",
+      "label": "Approve confirmation",
+      "config": {
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "approved":      { "type": "boolean" },
+            "edited_body":   { "type": "string",
+              "default": { "type": "expression", "value": "confirm_slot.body", "optional": true } }
+          },
+          "required": ["approved"]
+        }
+      }
+    },
+    {
+      "id": "approve_confirm_route",
+      "type": "DECISION",
+      "label": "Approved?",
+      "config": {
+        "rules": [
+          { "condition": "approve_confirm.approved == `true`", "next_node_id": "send_confirm" }
+        ]
+      }
+    },
+    {
+      "id": "send_confirm",
+      "type": "FUNCTION",
+      "label": "Send confirmation",
+      "config": {
+        "function_name": "send_outreach",
+        "input_mapping": {
+          "message_id": { "type": "expression", "value": "confirm_slot.message_id" }
+        }
+      }
+    },
+    { "id": "not_inbound",  "type": "END", "label": "Outbound — no handler needed" },
+    { "id": "manual_review","type": "END", "label": "Routed to manual review" },
+    { "id": "done",         "type": "END", "label": "Handled" }
+  ],
+  "edges": [
+    { "id": "e0",  "source": "direction_route", "target": "not_inbound", "label": "default — outbound" },
+    { "id": "e1",  "source": "classify",        "target": "intent_route" },
+    { "id": "e2",  "source": "intent_route",    "target": "manual_review", "label": "default — needs human" },
+    { "id": "e3",  "source": "propose_slots",   "target": "approve_slots" },
+    { "id": "e4",  "source": "approve_slots",   "target": "approve_slots_route" },
+    { "id": "e5",  "source": "approve_slots_route", "target": "done", "label": "default — declined" },
+    { "id": "e6",  "source": "send_slots",      "target": "done" },
+    { "id": "e7",  "source": "confirm_slot",    "target": "approve_confirm" },
+    { "id": "e8",  "source": "approve_confirm", "target": "approve_confirm_route" },
+    { "id": "e9",  "source": "approve_confirm_route", "target": "done", "label": "default — declined" },
+    { "id": "e10", "source": "send_confirm",    "target": "done" }
+  ]
+}
