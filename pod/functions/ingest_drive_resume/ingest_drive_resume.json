@@ -1,0 +1,16 @@
+{
+  "name": "ingest_drive_resume",
+  "description": "Pull a resume (PDF or Google Doc) from Google Drive by file_id, save it under /candidates/<id>/resume.<ext>, and update the candidate row with a resume_path pointer. When the founder receives a resume via email/DM/Drive share, they paste the Drive link into the operator app and this function brings the file into the pod's own storage so it's part of the durable candidate record.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] },
+      { "resource_type": "connector", "resource_name": "google_drive",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

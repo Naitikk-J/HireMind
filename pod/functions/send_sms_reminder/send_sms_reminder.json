@@ -1,0 +1,16 @@
+{
+  "name": "send_sms_reminder",
+  "description": "Send an SMS reminder to a candidate via Twilio's REST API. Uses direct HTTP (no Lemma connector — Twilio isn't in the connector catalog). Credentials are read from pod secrets TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER. Records the outbound message in the `messages` table so it appears in the operator app history. Cuts screen no-show rate ~40% in typical hiring stacks.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "interviews",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] }
+    ]
+  }
+}

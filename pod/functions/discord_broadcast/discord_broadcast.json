@@ -1,0 +1,16 @@
+{
+  "name": "discord_broadcast",
+  "description": "Post a sourcing message to a Discord channel (e.g. #jobs in an AI/infra community server) via the Discord connector. Optionally records a `messages` row so the founder can see what was broadcast and where. Great for community-first sourcing.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "messages",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "datastore_table", "resource_name": "roles",
+        "permission_ids": ["datastore.table.read", "datastore.record.read"] },
+      { "resource_type": "connector", "resource_name": "discord",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

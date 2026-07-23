@@ -118,6 +118,108 @@ def _format_local(dt: datetime, tz_name: str) -> str:
     return local.strftime("%a %-d %b, %-I:%M %p ") + abbrev
 
 
+# ---------------------------------------------------------------------------
+# Response extraction — walk the Composio response tree
+# ---------------------------------------------------------------------------
+
+# Every alias any known Composio / Google build has used for the four fields
+# we care about. Ordered so the most-authoritative shape wins if we hit
+# multiple copies during the walk.
+_EVENT_ID_KEYS = ("id", "event_id", "eventId")
+_HTML_LINK_KEYS = ("htmlLink", "html_link", "event_url", "eventUrl", "eventLink")
+_MEET_URL_KEYS = (
+    "hangoutLink", "hangout_link",
+    "meetLink", "meet_link", "meet_url", "meetUrl",
+    "conferenceLink", "conference_link",
+)
+_START_KEYS = ("dateTime", "date_time", "start_datetime", "startDateTime", "date")
+
+
+def _walk_dicts(root: Any):
+    """Yield every dict node inside a nested structure, root first, DFS."""
+    if isinstance(root, dict):
+        yield root
+        for v in root.values():
+            yield from _walk_dicts(v)
+    elif isinstance(root, list):
+        for item in root:
+            yield from _walk_dicts(item)
+
+
+def _find_first(root: Any, keys: tuple[str, ...]) -> str:
+    """Return the first non-empty string value found at any of `keys`
+    anywhere in the response tree."""
+    for node in _walk_dicts(root):
+        for k in keys:
+            v = node.get(k)
+            if isinstance(v, str) and v.strip():
+                return v.strip()
+            # Some builds surface these as objects with a `.value` field
+            # (rare, but seen with Composio's "resource wrapper" shape).
+            if isinstance(v, dict):
+                iv = v.get("value") or v.get("uri") or v.get("url")
+                if isinstance(iv, str) and iv.strip():
+                    return iv.strip()
+    return ""
+
+
+def _find_meet_url_deep(root: Any) -> str:
+    """Meet URL lookup is special: it can live at any of the flat aliases
+    OR nested inside `conferenceData.entryPoints[?type==video].uri`.
+    Try both shapes."""
+    for node in _walk_dicts(root):
+        # Direct flat aliases first.
+        for k in _MEET_URL_KEYS:
+            v = node.get(k)
+            if isinstance(v, str) and v.strip():
+                return v.strip()
+        # Google-native nested shape.
+        conf = node.get("conferenceData") or node.get("conference_data")
+        if isinstance(conf, dict):
+            entry_points = conf.get("entryPoints") or conf.get("entry_points") or []
+            if isinstance(entry_points, list):
+                for ep in entry_points:
+                    if not isinstance(ep, dict):
+                        continue
+                    et = ep.get("entryPointType") or ep.get("entry_point_type")
+                    uri = ep.get("uri") or ep.get("url")
+                    if et == "video" and isinstance(uri, str) and uri.strip():
+                        return uri.strip()
+        # Some Composio builds surface a bare `meeting` object.
+        meeting = node.get("meeting") or node.get("meet")
+        if isinstance(meeting, dict):
+            for k in ("uri", "url", "link"):
+                v = meeting.get(k)
+                if isinstance(v, str) and v.strip():
+                    return v.strip()
+    return ""
+
+
+def _find_start_iso(root: Any) -> str:
+    """Start-time lookup: prefer a nested `start.{dateTime,date_time}`
+    since that's the authoritative event field; fall back to any flat
+    `start_datetime` variant."""
+    for node in _walk_dicts(root):
+        start_obj = node.get("start")
+        if isinstance(start_obj, dict):
+            for k in _START_KEYS:
+                v = start_obj.get(k)
+                if isinstance(v, str) and v.strip():
+                    return v.strip()
+    # Flat form.
+    return _find_first(root, ("start_datetime", "startDateTime"))
+
+
+def _extract_event_fields(envelope: Any) -> tuple[str, str, str, str]:
+    """Return (event_id, html_link, meet_url, scheduled_at_iso) from any
+    known Composio/Google response shape. Missing fields come back as ''."""
+    event_id = _find_first(envelope, _EVENT_ID_KEYS)
+    html_link = _find_first(envelope, _HTML_LINK_KEYS)
+    meet_url = _find_meet_url_deep(envelope)
+    scheduled_at_iso = _find_start_iso(envelope)
+    return event_id, html_link, meet_url, scheduled_at_iso
+
+
 def _build_event_payload(
     *,
     candidate_name: str,
@@ -250,48 +352,57 @@ async def schedule_screen(
     except Exception as exc:
         raise RuntimeError(f"Calendar event creation failed: {exc!s}")
 
-    # Composio response envelope: `{ "data": <google event json>,
-    # "successful": bool, "error": str | None }`. Older SDK builds may
-    # surface the body under `.result` or `.data`; we accept either.
-    envelope = _to_dict(getattr(result, "result", None) or getattr(result, "data", None) or result)
-    if not envelope:
-        envelope = _to_dict(result)
-    if envelope.get("successful") is False or envelope.get("error"):
-        raise RuntimeError(
-            f"Calendar event creation failed: {envelope.get('error') or 'unknown Composio error'}"
+    # ------------------------------------------------------------------
+    # Composio response parsing.
+    #
+    # Composio's `GOOGLECALENDAR_CREATE_EVENT` envelope has moved shapes
+    # multiple times: old builds returned the raw Google event; current
+    # builds wrap it as `{data: {response_data: {...google event...}},
+    # successful: bool, error: str}`; some SDK versions expose only a
+    # flattened form (`event_id`, `event_url`, `meet_link`). To stop
+    # chasing this every release, we walk the ENTIRE response tree
+    # looking for the fields we need. This is O(fields × nodes) but the
+    # response is tiny, so it's fine.
+    # ------------------------------------------------------------------
+    envelope_root = _to_dict(result)
+    if not envelope_root:
+        envelope_root = _to_dict(
+            getattr(result, "result", None) or getattr(result, "data", None) or result
         )
-    event = envelope.get("data") if isinstance(envelope.get("data"), dict) else envelope
-    if not isinstance(event, dict):
-        event = {}
 
-    event_id = str(event.get("id") or "")
-    html_link = str(event.get("htmlLink") or event.get("html_link") or "")
-    # Meet URL lives at conferenceData.entryPoints[?type==video].uri in
-    # Google's native event shape. Composio passes the event through
-    # unchanged when conference creation succeeds. Fall back to
-    # hangoutLink (Google sometimes mirrors it there) and finally to a
-    # flat `meet_link` that some Composio versions surface.
-    meet_url = ""
-    conf = event.get("conferenceData") or event.get("conference_data") or {}
-    for ep in (conf.get("entryPoints") or conf.get("entry_points") or []):
-        et = ep.get("entryPointType") or ep.get("entry_point_type")
-        uri = ep.get("uri") or ep.get("url")
-        if et == "video" and uri:
-            meet_url = uri
-            break
-    if not meet_url:
-        meet_url = event.get("hangoutLink") or event.get("hangout_link") or event.get("meet_link") or ""
+    # `successful` / `error` may live at the top or one level down —
+    # check both.
+    if envelope_root.get("successful") is False or envelope_root.get("error"):
+        raise RuntimeError(
+            f"Calendar event creation failed: {envelope_root.get('error') or 'unknown Composio error'}"
+        )
+    inner = envelope_root.get("data")
+    if isinstance(inner, dict):
+        if inner.get("successful") is False or inner.get("error"):
+            raise RuntimeError(
+                f"Calendar event creation failed: {inner.get('error') or 'unknown Composio error'}"
+            )
 
-    # Persist the interview row. We use the verified scheduled time
-    # (from the event) when possible, else the requested start.
-    # Composio may flatten start to `start_datetime` or pass through
-    # the native nested `start.dateTime` shape; accept either.
-    scheduled_at_iso = ""
-    es = event.get("start") or {}
-    if isinstance(es, dict):
-        scheduled_at_iso = es.get("dateTime") or es.get("date_time") or es.get("date") or ""
-    if not scheduled_at_iso:
-        scheduled_at_iso = str(event.get("start_datetime") or event.get("startDateTime") or "")
+    event_id, html_link, meet_url, scheduled_at_iso = _extract_event_fields(envelope_root)
+
+    # If we successfully created something but couldn't find *any* of
+    # the expected fields, the response shape has changed again —
+    # surface a debug-friendly error rather than silently persisting
+    # a half-empty row. The error message includes the top-level keys
+    # so future debugging is one grep away.
+    if not (event_id or meet_url or html_link):
+        top_keys = ", ".join(sorted(envelope_root.keys())) or "(empty)"
+        inner_keys = ""
+        if isinstance(inner, dict):
+            inner_keys = ", ".join(sorted(inner.keys()))
+        raise RuntimeError(
+            "Calendar event created but Composio response was missing event id / meet url / html link. "
+            f"Top-level keys: [{top_keys}]. Inner data keys: [{inner_keys}]. "
+            "This usually means the connected Google account is a personal (@gmail.com) account without "
+            "Workspace Meet — Composio silently drops conference creation there. Try connecting a "
+            "Google Workspace account, or add a Meet link manually to the interview row."
+        )
+
     if not scheduled_at_iso:
         scheduled_at_iso = start.isoformat()
 

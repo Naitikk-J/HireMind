@@ -1,0 +1,16 @@
+{
+  "name": "enrich_github",
+  "description": "Enrich a candidate with GitHub signal — resolves their GitHub handle, pulls profile (bio, followers, public-repo count) and their most-recent public repos with language + star breakdown, and appends a 'GitHub signal' section to the candidate's dossier. High-leverage for engineering roles: a code portfolio is more predictive than a resume.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] },
+      { "resource_type": "connector", "resource_name": "github",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}

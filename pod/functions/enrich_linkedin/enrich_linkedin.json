@@ -1,0 +1,16 @@
+{
+  "name": "enrich_linkedin",
+  "description": "Enrich a candidate with LinkedIn signal — pulls a richer profile (headline, positions, education, follower count) via LINKEDIN_GET_PERSON and appends a 'LinkedIn signal' section to the candidate's dossier. Reduces the founder's manual LinkedIn skim time from ~3 min to zero.",
+  "type": "API",
+  "code": { "$file": "code.py" },
+  "permissions": {
+    "grants": [
+      { "resource_type": "datastore_table", "resource_name": "candidates",
+        "permission_ids": ["datastore.table.read", "datastore.record.read", "datastore.record.write"] },
+      { "resource_type": "folder", "resource_name": "/candidates",
+        "permission_ids": ["folder.read", "folder.write"] },
+      { "resource_type": "connector", "resource_name": "linkedin",
+        "permission_ids": ["connector.use"] }
+    ]
+  }
+}
